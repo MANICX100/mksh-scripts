@@ -74,13 +74,21 @@ alias shut='sudo systemctl suspend && i3lock -c 000000 -n'
 alias logoff='sudo service sddm restart'
 alias yt-dlp='/usr/local/bin/yt-dlp'
 
-gitsetup() {
-git config --global user.name "Danny Kendall"
-git config --global user.email "d.manicx100@gmail.com"
-git config --global rebase.updateRefs true
-git config --global credential.helper store
-git config --global --add push.default current
-git config --global --add push.autoSetupRemote true
+
+replacen() {
+    old_string=$1
+    new_string=$2
+    file=$3
+    
+    echo "How many instances do you want to replace?"
+    read instances
+
+    # Using awk command to replace instances
+    awk -v old="$old_string" -v new="$new_string" -v max="$instances" '
+        BEGIN{ count=0 }
+        count<max{ count+=gsub(old, new) }
+        { print }
+    ' $file > tmp_file && mv tmp_file $file
 }
 
 replaceline() {
@@ -89,7 +97,7 @@ replaceline() {
     local filename=$3
 
     # Use sed to replace the specified line in the file
-    sed -i "${line_number}s/.*/$replacement/" "$filename"
+    sed -i "$line_number s/.*/$replacement/" "$filename"
 }
 
 printline() {
@@ -97,12 +105,12 @@ printline() {
     local start_line=$2
     local end_line=$3
 
-    if [ -z "$file_path" ]; then
+    if [ -z $file_path ]; then
         echo "File path is required."
         return 1
     fi
 
-    if [ -z "$start_line" ] || [ -z "$end_line" ]; then
+    if [ -z $start_line ] || [ -z $end_line ]; then
         echo "Start and end lines are required."
         return 1
     fi
@@ -113,13 +121,14 @@ printline() {
     return $?
 }
 
-replaceall() {
-    local search_string=$1
-    local replace_string=$2
-    local n=$3
-    local file_path=$4
-    cp "$file_path" "$file_path.bak"
-    sed -i "s/$search_string/$replace_string/$n" "$file_path"
+
+gitsetup() {
+git config --global user.name "Danny Kendall"
+git config --global user.email "d.manicx100@gmail.com"
+git config --global rebase.updateRefs true
+git config --global credential.helper store
+git config --global --add push.default current
+git config --global --add push.autoSetupRemote true
 }
 
 function instsearch {
