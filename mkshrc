@@ -83,6 +83,66 @@ git config --global --add push.default current
 git config --global --add push.autoSetupRemote true
 }
 
+replaceline() {
+    # Check if the required arguments are provided
+    if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
+        echo "Usage: replaceline <line_number> <substitution> <file_path>"
+        return 1
+    fi
+
+    line_number="$1"
+    substitution="$2"
+    file_path="$3"
+
+    # Perform the line replacement using sed
+    sed -i "$line_number s/.*/$substitution/" "$file_path"
+}
+
+printline() {
+    line_number="$1"
+    file_path="$2"
+
+    if [ -z "$line_number" ] || [ -z "$file_path" ]; then
+        echo "Usage: printline <line number or range> <file path>"
+        return 1
+    fi
+
+    line_range=(${(s:-:)line_number})
+    start_line=$((line_range[1] + 1))
+    end_line=$((line_range[2] + 1))
+
+    if [ -n "${line_range[2]}" ]; then
+        sed_range="$start_line,${end_line}p"
+    else
+        sed_range="${start_line}p"
+    fi
+
+    if [ -f "$file_path" ]; then
+        sed -n "$sed_range" "$file_path"
+    else
+        echo "Error: File '$file_path' not found."
+        return 1
+    fi
+}
+
+replaceall() {
+    file_path="$1"
+    search_string="$2"
+    replacement="$3"
+    num_replacements="$4"
+
+    if [ "$num_replacements" -eq 0 ]; then
+        num_replacements="g"
+    fi
+
+    line_numbers=$(sed -n "/$search_string/=" "$file_path")
+    sed -i "s/$search_string/$replacement/$num_replacements" "$file_path"
+
+    for line_number in $line_numbers; do
+        echo "Replacement occurred on line $line_number"
+    done
+}
+
 
 function instsearch {
   if test $# -eq 0; then
