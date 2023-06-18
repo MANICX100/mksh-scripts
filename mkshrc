@@ -71,28 +71,30 @@ alias logoff='sudo service sddm restart'
 alias yt-dlp='/usr/local/bin/yt-dlp'
 
 replaceline() {
-set -l lineNumber $argv[1]
-set -l replacement $argv[2]
-set -l filePath $argv[3]
-set -l tempFile $filePath"_temp"
-frawk -v n="$lineNumber" -v s="$replacement" 'NR == n {print s; next} {print}' $filePath > $tempFile
-mv $tempFile $filePath
+    lineNumber=$1
+    replacement=$2
+    filePath=$3
+    tempFile=${filePath}_temp
+    frawk -v n="$lineNumber" -v s="$replacement" 'NR == n {print s; next} {print}' $filePath > $tempFile
+    mv $tempFile $filePath
 }
+
 printline() {
-set -l file_path $argv[1]
-set -l start_line $argv[2]
-set -l end_line $argv[3]
-if test -z $file_path
-echo "File path is required."
-return 1
+    file_path=$1
+    start_line=$2
+    end_line=$3
+    if [[ -z $file_path ]]; then
+        echo "File path is required."
+        return 1
+    fi
+    if [[ -z $start_line ]] || [[ -z $end_line ]]; then
+        echo "Start and end lines are required."
+        return 1
+    fi
+    bat --style=plain --pager=never --line-range="$start_line:$end_line" --color=always "$file_path" | rg --color=always .
+    return $?
 }
-if test -z $start_line -o -z $end_line
-echo "Start and end lines are required."
-return 1
-}
-bat --style=plain --pager=never --line-range="$start_line:$end_line" --color=always "$file_path" | rg --color=always .
-return $status
-}
+
 gitsetup() {
 git config --global user.name "Danny Kendall"
 git config --global user.email "d.manicx100@gmail.com"
