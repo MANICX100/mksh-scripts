@@ -277,258 +277,317 @@ Resync-Time() {
 }
 
 download_yt_video() {
-set resolution $argv[1]
-set video_url $argv[2]
-set command "yt-dlp -f \"bestvideo[height<=$resolution]+bestaudio/best[height<=$resolution]\" \"$video_url\""
-eval $command
+    resolution=$1
+    video_url=$2
+    command="yt-dlp -f \"bestvideo[height<=$resolution]+bestaudio/best[height<=$resolution]\" \"$video_url\""
+    eval $command
 }
+
 z() {
-set -l target_dir (find $PWD -type d -name "*$argv[1]*" -print | fzf)
-if test -n "$target_dir"
-cd $target_dir
+    target_dir=$(find $PWD -type d -name "*$1*" -print | fzf)
+    if [ -n "$target_dir" ]; then
+        cd $target_dir
+    fi
 }
+
+please() {
+    if functions -q -- "$1"; then
+        cmdline=""
+        for arg in "$@"; do
+            cmdline+="\"$arg\" "
+        done
+        export function_src=$(functions "$1")
+        argv=$(fish -c "string unescape --style=var (string split \"\n\" $function_src) | source; $cmdline")
+        command sudo -E $argv
+    else
+        command sudo "$@"
+    fi
 }
-please --wraps=sudo --description 'alias please sudo'() {
-if functions -q -- "$argv[1]"
-set cmdline (
-for arg in $argv
-printf "\"%s\" " $arg
-}
-)
-export function_src (string join "\n" (string escape --style=var (functions "$argv[1]")))
-set argv fish -c 'string unescape --style=var (string split "\n" $function_src) | source; '$cmdline
-command sudo -E $argv
-else
-command sudo $argv
-}
-}
+
 fdo() {
-set query (string join " " $argv)
-set selected_file (fzf --query "$query")
-xdg-open "$selected_file"
+    query=$(printf "%s " "$@")
+    selected_file=$(fzf --query "$query")
+    xdg-open "$selected_file"
 }
+
 git_unsynced() {
-bash -c 'for dir in $(find . -name .git -type d -prune); do
-if ! git -C "${dir%/*}" diff --quiet; then
-echo "$dir has uncommitted changes"
-git -C "${dir%/*}" status --short
-fi
-done'
+    for dir in $(find . -name .git -type d -prune); do
+        if ! git -C "${dir%/*}" diff --quiet; then
+            echo "$dir has uncommitted changes"
+            git -C "${dir%/*}" status --short
+        fi
+    done
 }
+
 burnin_srt() {
-set filename (basename "$argv[1]")  # get the full file name
-set base (echo $filename | sd '\.[^.]+$' '')  # get the file name without the extension
-set subtitle (echo $argv[1] | sd '\.[^.]+$' '.srt')
-ffmpeg -i "$argv[1]" -vf subtitles="$subtitle" -preset ultrafast -threads 0 "$base-srt.mkv"
+    filename=$(basename "$1")  # get the full file name
+    base=$(echo $filename | sed 's/\.[^.]*$//')  # get the file name without the extension
+    subtitle=$(echo $1 | sed 's/\.[^.]*$/.srt/')
+    ffmpeg -i "$1" -vf subtitles="$subtitle" -preset ultrafast -threads 0 "$base-srt.mkv"
 }
+
 speedupvid() {
-set filename (basename "$argv[1]")  # get the full file name
-set extension (echo $filename | sd '.*\.' '')  # get the extension
-set base (echo $filename | sd '\.[^.]+$' '')  # get the file name without the extension
-ffmpeg -i "$argv[1]" -filter_complex "[0:v]setpts=1/$argv[2]*PTS[v];[0:a]atempo=$argv[2][a]" -map "[v]" -map "[a]" -preset ultrafast -threads 0 "$base-speed.mkv"
+    filename=$(basename "$1")  # get the full file name
+    extension=$(echo $filename | sed 's/.*\.//')  # get the extension
+    base=$(echo $filename | sed 's/\.[^.]*$//')  # get the file name without the extension
+    ffmpeg -i "$1" -filter_complex "[0:v]setpts=1/$2*PTS[v];[0:a]atempo=$2[a]" -map "[v]" -map "[a]" -preset ultrafast -threads 0 "$base-speed.mkv"
 }
+
 convert_videos() {
-for f in *.mkv *.avi
-if test -f "$f"
-bash -c 'ffmpeg -i "$0" -c:v mpeg4 -c:a aac -b:a 192k "${0%.mkv}.mp4"' "$f"
+    for f in *.mkv *.avi; do
+        if [ -f "$f" ]; then
+            ffmpeg -i "$f" -c:v mpeg4 -c:a aac -b:a 192k "${f%.mkv}.mp4"
+        fi
+    done
 }
-}
-}
+
 burnin_srt_all() {
-for file in *.mp4 *.avi *.mkv
-if test -f "$file"
-burnin_srt "$file"
-rm "$file"
+    for file in *.mp4 *.avi *.mkv; do
+        if [ -f "$file" ]; then
+            burnin_srt "$file"
+            rm "$file"
+        fi
+    done
 }
-}
-}
+
 speedupvid_all() {
-for file in *.mp4 *.avi *.mkv
-if test -f "$file"
-speedupvid "$file" 1.2
-rm "$file"
-rm *.srt
+    for file in *.mp4 *.avi *.mkv; do
+        if [ -f "$file" ]; then
+            speedupvid "$file" 1.2
+            rm "$file"
+            rm *.srt
+        fi
+    done
 }
-}
-}
+
 create_empty_srt_files() {
-for f in *.mp4 *.mkv *.avi
-if test -f "$f"
-set base (string replace -r -- '\.[^.]*$' '' "$f")
-set srt_file "$base.srt"
-if not test -f "$srt_file"
-touch "$srt_file"
+    for f in *.mp4 *.mkv *.avi; do
+        if [ -f "$f" ]; then
+            base=$(echo "$f" | sed -E 's/\.[^.]+$//')
+            srt_file="$base.srt"
+            if [ ! -f "$srt_file" ]; then
+                touch "$srt_file"
+            fi
+        fi
+    done
 }
-}
-}
-}
+
 rename_videos() {
-bash -c 'for file in *.mp4 *.avi; do mv "$file" "${file%.*}.mkv"; done'
+    for file in *.mp4 *.avi; do
+        if [ -f "$file" ]; then
+            mv "$file" "${file%.*}.mkv"
+        fi
+    done
 }
+
 trash_movies() {
-for file in *.mkv *.avi *.mp4
-if test (echo $file | rg -v -- -speed) != ""
-trash $file
+    for file in *.mkv *.avi *.mp4; do
+        if [ -n "$(echo $file | rg -v -- -speed)" ]; then
+            trash $file
+        fi
+    done
 }
-}
-}
+
 unhide_files() {
-bash -c 'for file in .*; do mv "$file" "${file#.}"; done'
+    for file in .*; do
+        mv "$file" "${file#.}"
+    done
 }
+
 hide_files() {
-bash -c 'for file in *; do [[ -f $file ]] && mv "$file" ".$file"; done'
+    for file in *; do
+        if [ -f "$file" ]; then
+            mv "$file" ".$file"
+        fi
+    done
 }
+
 tgupdate() {
-aria2c --max-connection-per-server=16 -d ~/.config/ -o topgrade.toml -c --allow-overwrite=true "https://github.com/MANICX100/setup_scripts/raw/main/topgrade_lin.toml"
-topgrade
+    aria2c --max-connection-per-server=16 -d ~/.config/ -o topgrade.toml -c --allow-overwrite=true "https://github.com/MANICX100/setup_scripts/raw/main/topgrade_lin.toml"
+    topgrade
 }
+
 serv() {
-sudo redbean -C /usr/local/bin/ca.crt -K /usr/local/bin/ca.key -p 80 -p 443 -D $argv
+    sudo redbean -C /usr/local/bin/ca.crt -K /usr/local/bin/ca.key -p 80 -p 443 -D $@
 }
+
 rmopt() {
-rm -rf -v /opt/$argv
-rm -rf -v /usr/local/bin/$argv
-rm -rf -v /usr/local/share/applications/$argv.desktop
+    rm -rf -v "/opt/$1"
+    rm -rf -v "/usr/local/bin/$1"
+    rm -rf -v "/usr/local/share/applications/$1.desktop"
 }
+
 openperm() {
-sudo chmod -R a+rwx $argv
+    sudo chmod -R a+rwx $@
 }
+
 takeown() {
-sudo chown dkendall $argv
+    sudo chown dkendall $@
 }
+
 rmspecial() {
-find . -type f -exec bash -c 'mv "$1" "${1//[^[:alnum:].-]/}"' _ {} \;
-unhide_files
+    find . -type f -exec bash -c 'mv "$1" "${1//[^[:alnum:].-]/}"' _ {} \;
+    unhide_files
 }
+
 dictate() {
-cd nerd-dictation
-./nerd-dictation begin --vosk-model-dir=./model &
+    cd nerd-dictation
+    ./nerd-dictation begin --vosk-model-dir=./model &
 }
+
 enddictate() {
-./nerd-dictation end
-gohome
+    ./nerd-dictation end
+    gohome
 }
+
 yt-dlp-trim() {
-yt-dlp -f "[protocol!*=dash]" --external-downloader ffmpeg --external-downloader-args "ffmpeg_i:-ss $argv[2] -to $argv[3]" $argv[1]
+    yt-dlp -f "[protocol!*=dash]" --external-downloader ffmpeg --external-downloader-args "ffmpeg_i:-ss $2 -to $3" $1
 }
+
 ffsrtspeed() {
-ffmpeg -i $argv[1] \
--i $argv[3] \
--filter_complex \
-"[0:v]setpts=1/$argv[2]*PTS[v];\
-[0:a]rubberband=tempo=$argv[2][a]" \
--map "[v]" \
--map "[a]" \
--map 1 \
--preset ultrafast \
-$($now)-output.mkv
+    ffmpeg -i $1 -i $3 -filter_complex "[0:v]setpts=1/$2*PTS[v];[0:a]rubberband=tempo=$2[a]" -map "[v]" -map "[a]" -map 1 -preset ultrafast $($now)-output.mkv
 }
+
 image2txt() {
-read -l -P 'Please provide the file path for the image
-' confirm
-tesseract -l eng $confirm $($now)-output-from-ocr
-cat $($now)-output-from-ocr.txt|xclip -selection c
+    read -p 'Please provide the file path for the image: ' confirm
+    tesseract -l eng $confirm $($now)-output-from-ocr
+    cat $($now)-output-from-ocr.txt|xclip -selection c
 }
+
 yt-dlp-audio() {
-yt-dlp -f 'ba' -x --audio-format mp3 $argv
+    yt-dlp -f 'ba' -x --audio-format mp3 $@
 }
+
 Get-PubIP() {
-wget --no-cache -q -O - ipinfo.io/ip
+    wget --no-cache -q -O - ipinfo.io/ip
 }
+
 bak() {
-zip -r ~/$($now)-bak.zip /etc/default/ /etc/profile.d/ /usr/local/bin /opt/
+    zip -r ~/$($now)-bak.zip /etc/default/ /etc/profile.d/ /usr/local/bin /opt/
 }
+
 ffup() {
-aria2c -x 16 -d /home/dkendall/.mozilla/firefox/5p7rx3j6.default-release-1/ -o user-overrides.js --allow-overwrite=true https://github.com/MANICX100/setup_scripts/raw/main/user-overrides.js
-/home/dkendall/.mozilla/firefox/5p7rx3j6.default-release-1/updater.sh
+    aria2c -x 16 -d /home/dkendall/.mozilla/firefox/5p7rx3j6.default-release-1/ -o user-overrides.js --allow-overwrite=true https://github.com/MANICX100/setup_scripts/raw/main/user-overrides.js
+    /home/dkendall/.mozilla/firefox/5p7rx3j6.default-release-1/updater.sh
 }
+
 stripclip() {
-xclip -selection c -o | xargs | rg -o '.*' | xclip -selection c
+    xclip -selection c -o | xargs | rg -o '.*' | xclip -selection c
 }
 
 rcupdate() {
-aria2c -x 16 -d ~/ -o .mkshrc --allow-overwrite=true https://github.com/MANICX100/mksh-scripts/raw/main/mkshrc
-. ~/.mkshrc
+    aria2c -x 16 -d ~/ -o .mkshrc --allow-overwrite=true https://github.com/MANICX100/mksh-scripts/raw/main/mkshrc
+    . ~/.mkshrc
 }
 
-set -g osinfo (rg -ioP '^ID=\K.+' /etc/os-release)
+osinfo=$(rg -ioP '^ID=\K.+' /etc/os-release)
+
 neofetch > ~/.cache/neofetch
 sd Ubuntu 'Kendall Linux' ~/.cache/neofetch
 sd 6500 6900 ~/.cache/neofetch
 sd 6400 6800  ~/.cache/neofetch
 sd 3.201 6.0 ~/.cache/neofetch
 sd 99D "" ~/.cache/neofetch
+
 flushdns() {
-sudo resolvectl flush-caches
-echo "Successfully flushed DNS resolver cache"
+    sudo resolvectl flush-caches
+    echo "Successfully flushed DNS resolver cache"
 }
+
 alias networkstatus='nmcli dev status'
 alias up='topgrade'
 alias instrpm='sudo rpm -ivh --force'
 alias instdeb='sudo dpkg --force-all -i'
+
 uefi() {
-switch $osinfo
-case fedora
-systemctl reboot --firmware-setup
-case rebornos
-systemctl reboot --firmware-setup
-case debian
-systemctl reboot --firmware-setup
-case '*'
-sudo nvram "recovery-boot-mode=unusd"
-sudo reboot
+    case $osinfo in
+        fedora)
+            systemctl reboot --firmware-setup
+            ;;
+        rebornos)
+            systemctl reboot --firmware-setup
+            ;;
+        debian)
+            systemctl reboot --firmware-setup
+            ;;
+        *)
+            sudo nvram "recovery-boot-mode=unusd"
+            sudo reboot
+            ;;
+    esac
 }
-}
+
 orderfiles() {
-set list ./**.*
-for val in $list
-set ext (path extension -- $val | string replace . "")
-mkdir -p "$ext"
-cp $val "./$ext"
+    list=(./**.*)
+    for val in ${list[@]}; do
+        ext=$(path extension -- $val | string replace . "")
+        mkdir -p "$ext"
+        cp "$val" "./$ext"
+    done
 }
-}
+
 subs() {
-cd $("dirname" "$argv") ;
-"$HOME/OneDrive/OpenSubtitlesDownload.py" --cli --auto --username MANICX100 --password 5z6!!Evd "$1";
-cd "$HOME";
+    cd "$(dirname "$1")"
+    "$HOME/OneDrive/OpenSubtitlesDownload.py" --cli --auto --username MANICX100 --password 5z6!!Evd "$1"
+    cd "$HOME"
 }
+
 macos() {
-cd "$HOME/macOS-Simple-KVM/" ; ./basic.sh; cd "$HOME" ;
+    cd "$HOME/macOS-Simple-KVM/"
+    ./basic.sh
+    cd "$HOME"
 }
+
 yt() {
-cd "/home/dkendall/Videos/yt/"
-yt-dlp -f 'bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]' 'https://www.youtube.com/playlist?list=PLJElTFmVZU3vW-BIfsI2AmfVDL9PzqFmg' --external-downloader aria2c --external-downloader-args "-x 16 -k 1M";
-cd "$HOME";
+    cd "/home/dkendall/Videos/yt/"
+    yt-dlp -f 'bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]' 'https://www.youtube.com/playlist?list=PLJElTFmVZU3vW-BIfsI2AmfVDL9PzqFmg' --external-downloader aria2c --external-downloader-args "-x 16 -k 1M"
+    cd "$HOME"
 }
+
 deltv() {
-rm -rf "/home/dkendall/Videos/Personal"; cd "/home/dkendall/Videos/"; mkdir Personal; cd "$HOME";
+    rm -rf "/home/dkendall/Videos/Personal"
+    cd "/home/dkendall/Videos/"
+    mkdir Personal
+    cd "$HOME"
 }
+
 delyt() {
-rm -rf "/home/dkendall/Videos/yt"; cd "/home/dkendall/Videos/"; mkdir yt ; cd "$HOME";
+    rm -rf "/home/dkendall/Videos/yt"
+    cd "/home/dkendall/Videos/"
+    mkdir yt
+    cd "$HOME"
 }
+
 x() {
-cd $("dirname" "$argv") ;
-extract $argv;
-cd "$HOME";
+    cd "$(dirname "$1")"
+    extract "$1"
+    cd "$HOME"
 }
+
 lazyg() {
-git add .
-git commit -a -m "$argv"
-git push
+    git add .
+    git commit -a -m "$1"
+    git push
 }
+
 newgit() {
-git add .
-git commit -a --allow-empty-message -m " "
-git push
+    git add .
+    git commit -a --allow-empty-message -m " "
+    git push
 }
+
 gitprep() {
-git stash
-git pull
-git stash pop
+    git stash
+    git pull
+    git stash pop
 }
+
 gitIgnoreRm() {
-git rm -r --cached .
-git add .
-git commit -m "Update .gitignore"
+    git rm -r --cached .
+    git add .
+    git commit -m "Update .gitignore"
 }
-cls
+
+cls() {
+    clear
+}
