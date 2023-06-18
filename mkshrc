@@ -1,5 +1,4 @@
 # Converted fish config to mkshrc
-
 alias python='python3.11'
 alias convertdeb='sudo alien --to-rpm'
 alias convertrpm='sudo alien'
@@ -15,7 +14,6 @@ alias ffmpeg='/usr/local/bin/ffmpeg'
 alias linuxservices='systemctl list-unit-files --type=service --state=enabled'
 alias macosservices='sudo launchctl list'
 alias checkfiles='rsync --checksum --dry-run -rvn /media/dkendall/exFAT/ /home/dkendall/'
-#alias jellyfin='dotnet /home/dkendall/jellyfin/jellyfin.dll'
 alias dl='aria2c -x 16'
 alias dls='aria2c --enable-rpc=true -x 16'
 alias rpmall='sudo rpm -Uvh *'
@@ -45,9 +43,7 @@ alias batc='bat --paging=never --style=plain'
 alias lsh='ls -lah -U'
 alias lsf='ls -d "$PWD"/*'
 alias cls='clear'
-#alias screenshot='gnome-screenshot -a'
 alias rc='nano ~/.config/fish/config.fish'
-#alias settings='gnome-control-center'
 alias visudo='sudo nano /etc/sudoers.d/dkendall'
 alias edit-grub='sudo nano /etc/default/grub'
 alias pfetch='bat --paging=never --style=plain ~/.cache/neofetch'
@@ -56,7 +52,7 @@ alias instrpm='sudo rpm -ivh --force'
 alias instdeb='sudo dpkg --force-all -i'
 alias playtv='smplayer /home/dkendall/Videos/TV/Personal'
 alias emptybin='sudo rm -rf ~/.local/share/Trash/'
-alias delrecent='sudo rm ~/.local/share/recently-used.xbel && sudo touch ~/.local/share/recently-used.xbel'
+alias delrecent='sudo rm ~/.local/share/recently-usd.xbel && sudo touch ~/.local/share/recently-usd.xbel'
 alias rm='rm -rf -v'
 alias syncfolders='rsync -avh --ignore-existing --delete --progress --compress --no-whole-file /home/dkendall/ /media/dkendall/exFAT/'
 alias unshareusb='/bin/eveusbc unshare all'
@@ -64,7 +60,7 @@ alias shareusb='/bin/eveusbc share 12345 1-9.1'
 alias screenrec='ffmpeg -video_size 1920x1200 -framerate 60 -f x11grab -i :0.0+0,0 -f pulse -ac 2 -i default output-"$($now)".mkv'
 alias ffmpeglist='ffmpeg -list_devices true -f dshow -i dummy'
 alias openall='xdg-open *'
-alias flatten="find ./ -mindepth 2 -type f -exec mv -i '{}' . \;"
+alias flatten='{}'
 alias emptydel='find ./ -empty -type d -delete'
 alias delempty='find ./ -empty -type d -delete'
 alias gohome='cd "$HOME"'
@@ -73,55 +69,29 @@ alias addapp='xdg-open /usr/local/bin'
 alias shut='sudo systemctl suspend && i3lock -c 000000 -n'
 alias logoff='sudo service sddm restart'
 alias yt-dlp='/usr/local/bin/yt-dlp'
-
-
-replacen() {
-    old_string=$1
-    new_string=$2
-    file=$3
-    
-    echo "How many instances do you want to replace?"
-    read instances
-
-    # Using awk command to replace instances
-    awk -v old="$old_string" -v new="$new_string" -v max="$instances" '
-        BEGIN{ count=0 }
-        count<max{ count+=gsub(old, new) }
-        { print }
-    ' $file > tmp_file && mv tmp_file $file
-}
-
 replaceline() {
-    local line_number=$1
-    local replacement=$2
-    local filename=$3
-
-    # Use sed to replace the specified line in the file
-    sed -i "$line_number s/.*/$replacement/" "$filename"
+set -l lineNumber $argv[1]
+set -l replacement $argv[2]
+set -l filePath $argv[3]
+set -l tempFile $filePath"_temp"
+frawk -v n="$lineNumber" -v s="$replacement" 'NR == n {print s; next} {print}' $filePath > $tempFile
+mv $tempFile $filePath
 }
-
 printline() {
-    local file_path=$1
-    local start_line=$2
-    local end_line=$3
-
-    if [ -z $file_path ]; then
-        echo "File path is required."
-        return 1
-    fi
-
-    if [ -z $start_line ] || [ -z $end_line ]; then
-        echo "Start and end lines are required."
-        return 1
-    fi
-
-    # Use bat to colorize and paginate the output
-    bat --style=plain --pager=never --line-range="$start_line:$end_line" --color=always "$file_path" | rg --color=always .
-
-    return $?
+set -l file_path $argv[1]
+set -l start_line $argv[2]
+set -l end_line $argv[3]
+if test -z $file_path
+echo "File path is required."
+return 1
 }
-
-
+if test -z $start_line -o -z $end_line
+echo "Start and end lines are required."
+return 1
+}
+bat --style=plain --pager=never --line-range="$start_line:$end_line" --color=always "$file_path" | rg --color=always .
+return $status
+}
 gitsetup() {
 git config --global user.name "Danny Kendall"
 git config --global user.email "d.manicx100@gmail.com"
@@ -130,512 +100,383 @@ git config --global credential.helper store
 git config --global --add push.default current
 git config --global --add push.autoSetupRemote true
 }
-
-function instsearch {
-  if test $# -eq 0; then
-    echo "Please provide a package name."
-    return 1
-  fi
-
-  pkg_name=$1
-
-  echo "Searching for package '$pkg_name'"
-
-  # Search in dpkg
-  if type dpkg >/dev/null 2>&1; then
-    echo "=== DEB ==="
-    dpkg -l | rg -i "$pkg_name"
-  fi
-
-  # Search in flatpak
-  if type flatpak >/dev/null 2>&1; then
-    echo "=== FLATPAK ==="
-    flatpak list | rg -i "$pkg_name"
-  fi
-
-  # Search in snap
-  if type snap >/dev/null 2>&1; then
-    echo "=== SNAP ==="
-    snap list | rg -i "$pkg_name"
-  fi
-
-  # Search in am
-  if type am >/dev/null 2>&1; then
-    echo "=== APPIMAGES ==="
-    am -f | rg -i "$pkg_name"
-  fi
-
-  # Search in dnf
-  if type dnf >/dev/null 2>&1; then
-    echo "=== RPM ==="
-    dnf list installed | rg -i "$pkg_name"
-  fi
-
-  # Search in zypper
-  if type zypper >/dev/null 2>&1; then
-    echo "=== RPM ==="
-    zypper se -i | rg -i "$pkg_name"
-  fi
-
-  # Search in paru
-  if type paru >/dev/null 2>&1; then
-    echo "=== AUR ==="
-    paru -Q | rg -i "$pkg_name"
-  fi
-
-  # Search in brew
-  if type brew >/dev/null 2>&1; then
-    echo "=== BREW ==="
-    brew list | rg -i "$pkg_name"
-  fi
-
-  # Search in mas
-  if type mas >/dev/null 2>&1; then
-    echo "=== APPSTORE ==="
-    mas list | rg -i "$pkg_name"
-  fi
+instsearch() {
+if test (count $argv) -eq 0
+echo "Please provide a package name."
+return 1
 }
-
-function pkgsearch {
-  if test $# -eq 0; then
-    echo "Please provide a package name."
-    return 1
-  fi
-
-  pkg_name=$1
-
-  echo "Searching for package '$pkg_name'"
-
-  if type -q dpkg; then
-    # Search in apt
-    echo "=== DEB ==="
-    apt-cache search "$pkg_name" | rg -i "$pkg_name"
-  fi
-
-  if type -q dnf; then
-    # Search in dnf
-    echo "=== RPM ==="
-    dnf search "$pkg_name"
-  fi
-
-  if type -q zypper; then
-    # Search in zypper
-    echo "=== RPM ==="
-    zypper se "$pkg_name"
-  fi
-
-  if type -q paru; then
-    # Search in paru
-    echo "=== AUR ==="
-    paru -Ss "$pkg_name"
-  fi
-
-  if type -q brew; then
-    # Search in brew
-    echo "=== BREW ==="
-    brew search "$pkg_name"
-  fi
-
-  # Search in flatpak
-  if type -q flatpak; then
-    echo "=== FLATPAK ==="
-    flatpak remote-ls flathub | rg -i "$pkg_name"
-  fi
-
-  # Search in snap
-  if type -q snap; then
-    echo "=== SNAP ==="
-    snap find "$pkg_name"
-  fi
-
-  # Search in am
-  if type -q am; then
-    echo "=== APPIMAGES ==="
-    am -q "$pkg_name"
-  fi
-
-  if type -q mas; then
-    # Search in mas
-    echo "=== APPSTORE ==="
-    mas search "$pkg_name"
-  fi
+set -l pkg_name $argv[1]
+echo "Searching for package '$pkg_name'"
+if type dpkg >/dev/null 2>&1
+echo "=== DEB ==="
+dpkg -l | rg -i $pkg_name
 }
-
-function disable-all-network-interfaces {
-    if type ip >/dev/null 2>&1; then
-        for iface in $(ip link show | rg '^[0-9]' | awk -F: '{print $2}' | string trim); do
-            echo "Disabling $iface"
-            sudo ip link set $iface down
-        done
-    else
-        for service in $(networksetup -listallnetworkservices | string trim); do
-            echo "Disabling $service"
-            sudo networksetup -setnetworkserviceenabled $service off
-        done
-    fi
+if type flatpak >/dev/null 2>&1
+echo "=== FLATPAK ==="
+flatpak list | rg -i $pkg_name
 }
-
-function enable-all-network-interfaces {
-    if type ip >/dev/null 2>&1; then
-        for iface in $(ip link show | rg '^[0-9]' | awk -F: '{print $2}' | string trim); do
-            echo "Enabling $iface"
-            sudo ip link set $iface up
-        done
-    else
-        for service in $(networksetup -listallnetworkservices | string trim); do
-            echo "Enabling $service"
-            sudo networksetup -setnetworkserviceenabled $service on
-        done
-    fi
+if type snap >/dev/null 2>&1
+echo "=== SNAP ==="
+snap list | rg -i $pkg_name
 }
-
-function networkcycle {
-    disable-all-network-interfaces
-    enable-all-network-interfaces
+if type am >/dev/null 2>&1
+echo "=== APPIMAGES ==="
+am -f | rg -i $pkg_name
 }
-
-function Resync-Time {
-    if ! command -v ntpdate >/dev/null; then
-        echo "ntpdate is not installed. Please install it and try again."
-        return 1
-    fi
-
-    echo "Resyncing system time..."
-    sudo ntpdate pool.ntp.org
+if type dnf >/dev/null 2>&1
+echo "=== RPM ==="
+dnf list installed | rg -i $pkg_name
 }
-
-function download_yt_video {
-    local resolution=$1
-    local video_url=$2
-    local command="yt-dlp -f \"bestvideo[height<=$resolution]+bestaudio/best[height<=$resolution]\" \"$video_url\""
-    eval "$command"
+if type zypper >/dev/null 2>&1
+echo "=== RPM ==="
+zypper se -i | rg -i $pkg_name
 }
-
-function z {
-    local target_dir
-    target_dir=$(find "$PWD" -type d -name "*$1*" -print | fzf)
-    if [ -n "$target_dir" ]; then
-        cd "$target_dir"
-    fi
+if type paru >/dev/null 2>&1
+echo "=== AUR ==="
+paru -Q | rg -i $pkg_name
 }
-
-function please {
-    if functions -q -- "$1"; then
-        local cmdline=""
-        for arg in "$@"; do
-            cmdline+="\"$arg\" "
-        done
-        local function_src=$(functions "$1")
-        local escaped_src
-        escaped_src=$(string escape --style=var "$function_src")
-        local source_cmd="string unescape --style=var \"$escaped_src\" | source"
-        set -- fish -c "$source_cmd; $cmdline"
-        command sudo -E "$@"
-    else
-        command sudo "$@"
-    fi
+if type brew >/dev/null 2>&1
+echo "=== BREW ==="
+brew list | rg -i $pkg_name
 }
-
-function fdo {
-    local query
-    query=$(string join " " "$@")
-    local selected_file
-    selected_file=$(fzf --query "$query")
-    xdg-open "$selected_file"
+if type mas >/dev/null 2>&1
+echo "=== APPSTORE ==="
+mas list | rg -i $pkg_name
 }
-
-function git_unsynced {
-    for dir in $(find . -name .git -type d -prune); do
-        if ! git -C "${dir%/*}" diff --quiet; then
-            echo "$dir has uncommitted changes"
-            git -C "${dir%/*}" status --short
-        fi
-    done
 }
-
-function burnin_srt {
-    local filename
-    filename=$(basename "$1")  # get the full file name
-    local base
-    base=$(echo "$filename" | sed 's/\.[^.]*$//')  # get the file name without the extension
-    local subtitle
-    subtitle=$(echo "$1" | sed 's/\.[^.]*$/.srt/')
-    ffmpeg -i "$1" -vf subtitles="$subtitle" -preset ultrafast -threads 0 "$base-srt.mkv"
+pkgsearch() {
+if test (count $argv) -eq 0
+echo "Please provide a package name."
+return 1
 }
-
-function speedupvid {
-    local filename
-    filename=$(basename "$1")  # get the full file name
-    local extension
-    extension=$(echo "$filename" | sed 's/^.*\.//')  # get the extension
-    local base
-    base=$(echo "$filename" | sed 's/\.[^.]*$//')  # get the file name without the extension
-    ffmpeg -i "$1" -filter_complex "[0:v]setpts=1/$2*PTS[v];[0:a]rubberband=tempo=$2[a]" -map "[v]" -map "[a]" -preset ultrafast -threads 0 "$base-speed.mkv"
+set -l pkg_name $argv[1]
+echo "Searching for package '$pkg_name'"
+if type -q dpkg
+echo "=== DEB ==="
+apt-cache search $pkg_name | rg -i $pkg_name
 }
-
-function convert_videos {
-    for f in *.mkv *.avi; do
-        if [ -f "$f" ]; then
-            ffmpeg -i "$f" -c:v mpeg4 -c:a aac -b:a 192k "${f%.mkv}.mp4"
-        fi
-    done
+if type -q dnf
+echo "=== RPM ==="
+dnf search $pkg_name
 }
-
-function burnin_srt_all {
-    for file in *.mp4 *.avi *.mkv; do
-        if [ -f "$file" ]; then
-            burnin_srt "$file"
-            rm "$file"
-        fi
-    done
+if type -q zypper
+echo "=== RPM ==="
+zypper se $pkg_name
 }
-
-function speedupvid_all {
-    for file in *.mp4 *.avi *.mkv; do
-        if [ -f "$file" ]; then
-            speedupvid "$file" 1.2
-            rm "$file"
-            rm *.srt
-        fi
-    done
+if type -q paru
+echo "=== AUR ==="
+paru -Ss $pkg_name
 }
-
-function create_empty_srt_files {
-    for f in *.mp4 *.mkv *.avi; do
-        if [ -f "$f" ]; then
-            local base
-            base=$(string replace -r -- '\.[^.]*$' '' "$f")
-            local srt_file
-            srt_file="$base.srt"
-            if [ ! -f "$srt_file" ]; then
-                touch "$srt_file"
-            fi
-        fi
-    done
+if type -q brew
+echo "=== BREW ==="
+brew search $pkg_name
 }
-
-function rename_videos {
-    for file in *.mp4 *.avi; do
-        if [ -f "$file" ]; then
-            mv "$file" "${file%.*}.mkv"
-        fi
-    done
+if type -q flatpak
+echo "=== FLATPAK ==="
+flatpak remote-ls flathub | rg -i $pkg_name
 }
-
-function trash_movies {
-    for file in *.mkv *.avi *.mp4; do
-        if [ "$(echo "$file" | rg -v -- -speed)" != "" ]; then
-            trash "$file"
-        fi
-    done
+if type -q snap
+echo "=== SNAP ==="
+snap find $pkg_name
 }
-
-function unhide_files {
-    for file in .*; do
-        mv "$file" "${file#.}"
-    done
+if type -q am
+echo "=== APPIMAGES ==="
+am -q $pkg_name
 }
-
-function hide_files {
-    for file in *; do
-        if [ -f "$file" ]; then
-            mv "$file" ".$file"
-        fi
-    done
+if type -q mas
+echo "=== APPSTORE ==="
+mas search $pkg_name
 }
-
-function tgupdate {
-    aria2c --max-connection-per-server=16 -d ~/.config/ -o topgrade.toml -c --allow-overwrite=true "https://github.com/MANICX100/setup_scripts/raw/main/topgrade_lin.toml"
-    topgrade
 }
-
-function serv {
-    sudo redbean -C /usr/local/bin/ca.crt -K /usr/local/bin/ca.key -p 80 -p 443 -D "$@"
+disable-all-network-interfaces() {
+if type -q ip
+for iface in (ip link show | rg '^[0-9]' | frawk -F: '{print $2}' | string trim)
+echo "Disabling $iface"
+sudo ip link set $iface down
 }
-
-function rmopt {
-    rm -rf -v "/opt/$1"
-    rm -rf -v "/usr/local/bin/$1"
-    rm -rf -v "/usr/local/share/applications/$1.desktop"
+else
+for service in (networksetup -listallnetworkservices | string trim)
+echo "Disabling $service"
+sudo networksetup -setnetworkserviceenabled $service off
 }
-
-function openperm {
-    sudo chmod -R a+rwx "$@"
 }
-
-function takeown {
-    sudo chown dkendall "$@"
 }
-
-function rmspecial {
-    find . -type f -exec bash -c 'mv "$1" "${1//[^[:alnum:].-]/}"' _ {} \;
-    unhide_files
+enable-all-network-interfaces() {
+if type -q ip
+for iface in (ip link show | rg '^[0-9]' | frawk -F: '{print $2}' | string trim)
+echo "Enabling $iface"
+sudo ip link set $iface up
 }
-
-function dictate {
-    cd nerd-dictation || return
-    ./nerd-dictation begin --vosk-model-dir=./model &
+else
+for service in (networksetup -listallnetworkservices | string trim)
+echo "Enabling $service"
+sudo networksetup -setnetworkserviceenabled $service on
 }
-
-function enddictate {
-    ./nerd-dictation end
-    gohome
 }
-
-function yt-dlp-trim {
-    yt-dlp -f "[protocol!*=dash]" --external-downloader ffmpeg --external-downloader-args "ffmpeg_i:-ss $2 -to $3" "$1"
 }
-
-function ffsrtspeed {
-    ffmpeg -i "$1" \
-       -i "$3" \
-       -filter_complex \
-          "[0:v]setpts=1/$2*PTS[v];\
-           [0:a]rubberband=tempo=$2[a]" \
-       -map "[v]" \
-       -map "[a]" \
-       -map 1 \
-       -preset ultrafast \
-       "$($now)-output.mkv"
+networkcycle() {
+disable-all-network-interfaces
+enable-all-network-interfaces
 }
-
-function image2txt {
-    local confirm
-    read -l -P 'Please provide the file path for the image: ' confirm
-    tesseract -l eng "$confirm" "$($now)-output-from-ocr"
-    cat "$($now)-output-from-ocr.txt" | xclip -selection c
+Resync-Time() {
+if not command -v ntpdate >/dev/null
+echo "ntpdate is not installed. Please install it and try again."
+return 1
 }
-
-function yt-dlp-audio {
-    yt-dlp -f 'ba' -x --audio-format mp3 "$@"
+echo "Resyncing system time..."
+sudo ntpdate pool.ntp.org
 }
-
-function Get-PubIP {
-    wget --no-cache -q -O - ipinfo.io/ip
+download_yt_video() {
+set resolution $argv[1]
+set video_url $argv[2]
+set command "yt-dlp -f \"bestvideo[height<=$resolution]+bestaudio/best[height<=$resolution]\" \"$video_url\""
+eval $command
 }
-
-function bak {
-    zip -r ~/"$($now)-bak.zip" /etc/default/ /etc/profile.d/ /usr/local/bin /opt/
+z() {
+set -l target_dir (find $PWD -type d -name "*$argv[1]*" -print | fzf)
+if test -n "$target_dir"
+cd $target_dir
 }
-
-function ffup {
-    aria2c -x 16 -d /home/dkendall/.mozilla/firefox/5p7rx3j6.default-release-1/ -o user-overrides.js --allow-overwrite=true https://github.com/MANICX100/setup_scripts/raw/main/user-overrides.js
-    /home/dkendall/.mozilla/firefox/5p7rx3j6.default-release-1/updater.sh
 }
-
-function stripclip {
-    xclip -selection c -o | xargs | rg -o '.*' | xclip -selection c
+please --wraps=sudo --description 'alias please sudo'() {
+if functions -q -- "$argv[1]"
+set cmdline (
+for arg in $argv
+printf "\"%s\" " $arg
 }
-
-function rcupdate {
-    aria2c -x 16 -d ~/ -o .mkshrc --allow-overwrite=true https://github.com/MANICX100/mksh-scripts/raw/main/mkshrc
-    . ~/.mkshrc
+)
+export function_src (string join "\n" (string escape --style=var (functions "$argv[1]")))
+set argv fish -c 'string unescape --style=var (string split "\n" $function_src) | source; '$cmdline
+command sudo -E $argv
+else
+command sudo $argv
 }
-
-osinfo=$(rg -ioP '^ID=K.+' /etc/os-release)
-
+}
+fdo() {
+set query (string join " " $argv)
+set selected_file (fzf --query "$query")
+xdg-open "$selected_file"
+}
+git_unsynced() {
+bash -c 'for dir in $(find . -name .git -type d -prune); do
+if ! git -C "${dir%/*}" diff --quiet; then
+echo "$dir has uncommitted changes"
+git -C "${dir%/*}" status --short
+fi
+done'
+}
+burnin_srt() {
+set filename (basename "$argv[1]")  # get the full file name
+set base (echo $filename | sd '\.[^.]+$' '')  # get the file name without the extension
+set subtitle (echo $argv[1] | sd '\.[^.]+$' '.srt')
+ffmpeg -i "$argv[1]" -vf subtitles="$subtitle" -preset ultrafast -threads 0 "$base-srt.mkv"
+}
+speedupvid() {
+set filename (basename "$argv[1]")  # get the full file name
+set extension (echo $filename | sd '.*\.' '')  # get the extension
+set base (echo $filename | sd '\.[^.]+$' '')  # get the file name without the extension
+ffmpeg -i "$argv[1]" -filter_complex "[0:v]setpts=1/$argv[2]*PTS[v];[0:a]atempo=$argv[2][a]" -map "[v]" -map "[a]" -preset ultrafast -threads 0 "$base-speed.mkv"
+}
+convert_videos() {
+for f in *.mkv *.avi
+if test -f "$f"
+bash -c 'ffmpeg -i "$0" -c:v mpeg4 -c:a aac -b:a 192k "${0%.mkv}.mp4"' "$f"
+}
+}
+}
+burnin_srt_all() {
+for file in *.mp4 *.avi *.mkv
+if test -f "$file"
+burnin_srt "$file"
+rm "$file"
+}
+}
+}
+speedupvid_all() {
+for file in *.mp4 *.avi *.mkv
+if test -f "$file"
+speedupvid "$file" 1.2
+rm "$file"
+rm *.srt
+}
+}
+}
+create_empty_srt_files() {
+for f in *.mp4 *.mkv *.avi
+if test -f "$f"
+set base (string replace -r -- '\.[^.]*$' '' "$f")
+set srt_file "$base.srt"
+if not test -f "$srt_file"
+touch "$srt_file"
+}
+}
+}
+}
+rename_videos() {
+bash -c 'for file in *.mp4 *.avi; do mv "$file" "${file%.*}.mkv"; done'
+}
+trash_movies() {
+for file in *.mkv *.avi *.mp4
+if test (echo $file | rg -v -- -speed) != ""
+trash $file
+}
+}
+}
+unhide_files() {
+bash -c 'for file in .*; do mv "$file" "${file#.}"; done'
+}
+hide_files() {
+bash -c 'for file in *; do [[ -f $file ]] && mv "$file" ".$file"; done'
+}
+tgupdate() {
+aria2c --max-connection-per-server=16 -d ~/.config/ -o topgrade.toml -c --allow-overwrite=true "https://github.com/MANICX100/setup_scripts/raw/main/topgrade_lin.toml"
+topgrade
+}
+serv() {
+sudo redbean -C /usr/local/bin/ca.crt -K /usr/local/bin/ca.key -p 80 -p 443 -D $argv
+}
+rmopt() {
+rm -rf -v /opt/$argv
+rm -rf -v /usr/local/bin/$argv
+rm -rf -v /usr/local/share/applications/$argv.desktop
+}
+openperm() {
+sudo chmod -R a+rwx $argv
+}
+takeown() {
+sudo chown dkendall $argv
+}
+rmspecial() {
+find . -type f -exec bash -c 'mv "$1" "${1//[^[:alnum:].-]/}"' _ {} \;
+unhide_files
+}
+dictate() {
+cd nerd-dictation
+./nerd-dictation begin --vosk-model-dir=./model &
+}
+enddictate() {
+./nerd-dictation end
+gohome
+}
+yt-dlp-trim() {
+yt-dlp -f "[protocol!*=dash]" --external-downloader ffmpeg --external-downloader-args "ffmpeg_i:-ss $argv[2] -to $argv[3]" $argv[1]
+}
+ffsrtspeed() {
+ffmpeg -i $argv[1] \
+-i $argv[3] \
+-filter_complex \
+"[0:v]setpts=1/$argv[2]*PTS[v];\
+[0:a]rubberband=tempo=$argv[2][a]" \
+-map "[v]" \
+-map "[a]" \
+-map 1 \
+-preset ultrafast \
+$($now)-output.mkv
+}
+image2txt() {
+read -l -P 'Please provide the file path for the image
+' confirm
+tesseract -l eng $confirm $($now)-output-from-ocr
+cat $($now)-output-from-ocr.txt|xclip -selection c
+}
+yt-dlp-audio() {
+yt-dlp -f 'ba' -x --audio-format mp3 $argv
+}
+Get-PubIP() {
+wget --no-cache -q -O - ipinfo.io/ip
+}
+bak() {
+zip -r ~/$($now)-bak.zip /etc/default/ /etc/profile.d/ /usr/local/bin /opt/
+}
+ffup() {
+aria2c -x 16 -d /home/dkendall/.mozilla/firefox/5p7rx3j6.default-release-1/ -o user-overrides.js --allow-overwrite=true https://github.com/MANICX100/setup_scripts/raw/main/user-overrides.js
+/home/dkendall/.mozilla/firefox/5p7rx3j6.default-release-1/updater.sh
+}
+stripclip() {
+xclip -selection c -o | xargs | rg -o '.*' | xclip -selection c
+}
+rcupdate() {
+aria2c -x 16 -d ~/.config/fish -o config.fish --allow-overwrite=true https://github.com/MANICX100/setup_scripts/raw/main/fish_aliases.fish
+. ~/.config/fish/config.fish
+}
+set -g osinfo (rg -ioP '^ID=\K.+' /etc/os-release)
 neofetch > ~/.cache/neofetch
-
-sed -i 's/Ubuntu/Kendall Linux/g' ~/.cache/neofetch
-sed -i 's/6500/6900/g' ~/.cache/neofetch
-sed -i 's/6400/6800/g' ~/.cache/neofetch
-sed -i 's/3.201/6.0/g' ~/.cache/neofetch
-sed -i 's/99D//g' ~/.cache/neofetch
-
-function flushdns {
-    sudo resolvectl flush-caches
-    echo "Successfully flushed DNS resolver cache"
+sd Ubuntu 'Kendall Linux' ~/.cache/neofetch
+sd 6500 6900 ~/.cache/neofetch
+sd 6400 6800  ~/.cache/neofetch
+sd 3.201 6.0 ~/.cache/neofetch
+sd 99D "" ~/.cache/neofetch
+flushdns() {
+sudo resolvectl flush-caches
+echo "Successfully flushed DNS resolver cache"
 }
-
-function uefi {
-    case $osinfo in
-        fedora)
-            systemctl reboot --firmware-setup
-            ;;
-        rebornos)
-            systemctl reboot --firmware-setup
-            ;;
-        debian)
-            systemctl reboot --firmware-setup
-            ;;
-        *)
-            sudo nvram "recovery-boot-mode=unused"
-            sudo reboot
-            ;;
-    esac
+alias networkstatus='nmcli dev status'
+alias up='topgrade'
+alias instrpm='sudo rpm -ivh --force'
+alias instdeb='sudo dpkg --force-all -i'
+uefi() {
+switch $osinfo
+case fedora
+systemctl reboot --firmware-setup
+case rebornos
+systemctl reboot --firmware-setup
+case debian
+systemctl reboot --firmware-setup
+case '*'
+sudo nvram "recovery-boot-mode=unusd"
+sudo reboot
 }
-
-function orderfiles {
-    local list
-    list=$(find ./**.*)
-    for val in $list; do
-        local ext
-        ext=$(path extension -- "$val" | string replace . "")
-        mkdir -p "$ext"
-        cp "$val" "./$ext"
-    done
 }
-
-function subs {
-    cd "$(dirname "$1")" || return
-    "$HOME/OneDrive/OpenSubtitlesDownload.py" --cli --auto --username MANICX100 --password 5z6!!Evd "$1"
-    cd "$HOME" || return
+orderfiles() {
+set list ./**.*
+for val in $list
+set ext (path extension -- $val | string replace . "")
+mkdir -p "$ext"
+cp $val "./$ext"
 }
-
-function macos {
-    cd "$HOME/macOS-Simple-KVM/" || return
-    ./basic.sh
-    cd "$HOME" || return
 }
-
-function yt {
-    cd "/home/dkendall/Videos/yt/" || return
-    yt-dlp -f 'bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]' 'https://www.youtube.com/playlist?list=PLJElTFmVZU3vW-BIfsI2AmfVDL9PzqFmg' --external-downloader aria2c --external-downloader-args "-x 16 -k 1M"
-    cd "$HOME" || return
+subs() {
+cd $("dirname" "$argv") ;
+"$HOME/OneDrive/OpenSubtitlesDownload.py" --cli --auto --username MANICX100 --password 5z6!!Evd "$1";
+cd "$HOME";
 }
-
-function deltv {
-    rm -rf "/home/dkendall/Videos/Personal"
-    cd "/home/dkendall/Videos/" || return
-    mkdir Personal
-    cd "$HOME" || return
+macos() {
+cd "$HOME/macOS-Simple-KVM/" ; ./basic.sh; cd "$HOME" ;
 }
-
-function delyt {
-    rm -rf "/home/dkendall/Videos/yt"
-    cd "/home/dkendall/Videos/" || return
-    mkdir yt
-    cd "$HOME" || return
+yt() {
+cd "/home/dkendall/Videos/yt/"
+yt-dlp -f 'bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]' 'https://www.youtube.com/playlist?list=PLJElTFmVZU3vW-BIfsI2AmfVDL9PzqFmg' --external-downloader aria2c --external-downloader-args "-x 16 -k 1M";
+cd "$HOME";
 }
-
-function x {
-    cd "$(dirname "$1")" || return
-    extract "$1"
-    cd "$HOME" || return
+deltv() {
+rm -rf "/home/dkendall/Videos/Personal"; cd "/home/dkendall/Videos/"; mkdir Personal; cd "$HOME";
 }
-
-function lazyg {
-    git add .
-    git commit -a -m "$1"
-    git push
+delyt() {
+rm -rf "/home/dkendall/Videos/yt"; cd "/home/dkendall/Videos/"; mkdir yt ; cd "$HOME";
 }
-
-function newgit {
-    git add .
-    git commit -a --allow-empty-message -m " "
-    git push
+x() {
+cd $("dirname" "$argv") ;
+extract $argv;
+cd "$HOME";
 }
-
-function gitprep {
-    git stash
-    git pull
-    git stash pop
+lazyg() {
+git add .
+git commit -a -m "$argv"
+git push
 }
-
-function gitIgnoreRm {
-    git rm -r --cached .
-    git add .
-    git commit -m "Update .gitignore"
+newgit() {
+git add .
+git commit -a --allow-empty-message -m " "
+git push
 }
-
+gitprep() {
+git stash
+git pull
+git stash pop
+}
+gitIgnoreRm() {
+git rm -r --cached .
+git add .
+git commit -m "Update .gitignore"
+}
 cls
