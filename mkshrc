@@ -268,13 +268,14 @@ networkcycle() {
 }
 
 Resync-Time() {
-if not command -v ntpdate >/dev/null
-echo "ntpdate is not installed. Please install it and try again."
-return 1
+    if ! command -v ntpdate >/dev/null 2>&1; then
+        echo "ntpdate is not installed. Please install it and try again."
+        return 1
+    fi
+    echo "Resyncing system time..."
+    sudo ntpdate pool.ntp.org
 }
-echo "Resyncing system time..."
-sudo ntpdate pool.ntp.org
-}
+
 download_yt_video() {
 set resolution $argv[1]
 set video_url $argv[2]
