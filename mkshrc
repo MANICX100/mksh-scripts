@@ -235,35 +235,38 @@ function pkgsearch {
 }
 
 disable-all-network-interfaces() {
-if type -q ip
-for iface in (ip link show | rg '^[0-9]' | frawk -F: '{print $2}' | string trim)
-echo "Disabling $iface"
-sudo ip link set $iface down
+    if type ip > /dev/null 2>&1; then
+        for iface in $(ip link show | rg '^[0-9]' | frawk -F: '{print $2}' | tr -d '[:space:]'); do
+            echo "Disabling $iface"
+            sudo ip link set $iface down
+        done
+    else
+        for service in $(networksetup -listallnetworkservices | tr -d '[:space:]'); do
+            echo "Disabling $service"
+            sudo networksetup -setnetworkserviceenabled "$service" off
+        done
+    fi
 }
-else
-for service in (networksetup -listallnetworkservices | string trim)
-echo "Disabling $service"
-sudo networksetup -setnetworkserviceenabled $service off
-}
-}
-}
+
 enable-all-network-interfaces() {
-if type -q ip
-for iface in (ip link show | rg '^[0-9]' | frawk -F: '{print $2}' | string trim)
-echo "Enabling $iface"
-sudo ip link set $iface up
+    if type ip > /dev/null 2>&1; then
+        for iface in $(ip link show | rg '^[0-9]' | frawk -F: '{print $2}' | tr -d '[:space:]'); do
+            echo "Enabling $iface"
+            sudo ip link set $iface up
+        done
+    else
+        for service in $(networksetup -listallnetworkservices | tr -d '[:space:]'); do
+            echo "Enabling $service"
+            sudo networksetup -setnetworkserviceenabled "$service" on
+        done
+    fi
 }
-else
-for service in (networksetup -listallnetworkservices | string trim)
-echo "Enabling $service"
-sudo networksetup -setnetworkserviceenabled $service on
-}
-}
-}
+
 networkcycle() {
-disable-all-network-interfaces
-enable-all-network-interfaces
+    disable-all-network-interfaces
+    enable-all-network-interfaces
 }
+
 Resync-Time() {
 if not command -v ntpdate >/dev/null
 echo "ntpdate is not installed. Please install it and try again."
