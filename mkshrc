@@ -517,24 +517,6 @@ alias up='topgrade'
 alias instrpm='sudo rpm -ivh --force'
 alias instdeb='sudo dpkg --force-all -i'
 
-uefi() {
-    case $osinfo in
-        fedora)
-            systemctl reboot --firmware-setup
-            ;;
-        rebornos)
-            systemctl reboot --firmware-setup
-            ;;
-        debian)
-            systemctl reboot --firmware-setup
-            ;;
-        *)
-            sudo nvram "recovery-boot-mode=unusd"
-            sudo reboot
-            ;;
-    esac
-}
-
 orderfiles() {
     list=(./**.*)
     for val in ${list[@]}; do
