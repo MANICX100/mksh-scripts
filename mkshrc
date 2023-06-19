@@ -200,7 +200,7 @@ function pkgsearch {
   if command -v dpkg >/dev/null; then
     # Search in apt
     echo "=== DEB ==="
-    apt-cache search "$pkg_name" | grep -i "$pkg_name"
+    apt-cache search "$pkg_name" | rg -i "$pkg_name"
   fi
 
   if command -v dnf >/dev/null; then
@@ -212,7 +212,7 @@ function pkgsearch {
   if command -v zypper >/dev/null; then
     # Search in zypper
     echo "=== RPM ==="
-    zypper se -i "$pkg_name"
+    zypper se "$pkg_name"
   fi
 
   if command -v paru >/dev/null; then
@@ -230,7 +230,7 @@ function pkgsearch {
   # Search in flatpak
   if command -v flatpak >/dev/null; then
     echo "=== FLATPAK ==="
-    flatpak remote-ls flathub | grep -i "$pkg_name"
+    flatpak remote-ls flathub | rg -i "$pkg_name"
   fi
 
   # Search in snap
