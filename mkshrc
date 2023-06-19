@@ -1,5 +1,6 @@
 # Converted fish config to mkshrc
 
+alias zig='/home/dkendall/Downloads/zig/zig'
 alias drivers='sudo lspci -v'
 alias logs='journalctl|fmt|rg -i'
 alias python='python3.11'
