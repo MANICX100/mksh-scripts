@@ -1,5 +1,7 @@
 # Converted fish config to mkshrc
 
+alias Invoke-Item='xdg-open'
+alias Start-Process='xdg-open'
 alias move='mv'
 alias copy='cp'
 alias remove-item='rm'
