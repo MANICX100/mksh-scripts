@@ -82,6 +82,10 @@ alias shut='sudo systemctl suspend && i3lock -c 000000 -n'
 alias logoff='sudo service sddm restart'
 alias yt-dlp='/usr/local/bin/yt-dlp'
 
+rename-item() {
+    mv "$1" "$2"
+}
+
 fp() {
     if [ $# -eq 0 ]; then
         echo "Usage: fp <application-name>"
