@@ -708,3 +708,7 @@ gitIgnoreRm() {
     git add .
     git commit -m "Update .gitignore"
 }
+
+if [ -n "$ZSH_VERSION" ]; then
+source ~/powerlevel10k/powerlevel10k.zsh-theme
+fi
