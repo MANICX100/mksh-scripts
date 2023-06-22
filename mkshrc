@@ -92,20 +92,30 @@ projectdl() {
     # Fetch the latest release information
     release_info=$(curl -s "https://api.github.com/repos/$user/$project/releases/latest")
 
-    # Extract the URLs for the assets
-    asset_urls=$(echo "$release_info" | jq -r '.assets[].browser_download_url')
+    # Extract the names and URLs for the assets
+    IFS=$'\n'
+    asset_info=($(echo "$release_info" | jq -r '.assets[] | "\(.name) \(.browser_download_url)"'))
 
-    for url in $asset_urls; do
-        # Download the file with aria2c
-        aria2c -s16 -x16 -k1M --auto-file-renaming=false --allow-overwrite=true --dir=/usr/local/bin "$url" 
-
-        # Get filename from the URL
-        filename=$(basename "$url")
-
-        # Make the downloaded file executable
-        chmod +x "/usr/local/bin/$filename"
+    # Prompt user for which file to download
+    echo "Please choose a file to download:"
+    select choice in "${asset_info[@]}"; do
+        [[ -n $choice ]] && break
+        echo "Invalid selection. Please choose a number from the list."
     done
+
+    # Extract the URL from the choice
+    url=$(echo "$choice" | frawk '{print $NF}')
+
+    # Download the file with aria2c
+    aria2c -s16 -x16 -k1M --auto-file-renaming=false --allow-overwrite=true --dir=/usr/local/bin "$url" 
+
+    # Get filename from the URL
+    filename=$(basename "$url")
+
+    # Make the downloaded file executable
+    chmod +x "/usr/local/bin/$filename"
 }
+
 
 playtv() {
     for file in /home/dkendall/Videos/Personal/*; do
