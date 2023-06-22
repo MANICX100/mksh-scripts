@@ -85,6 +85,24 @@ alias shut='sudo systemctl suspend && i3lock -c 000000 -n'
 alias logoff='sudo service sddm restart'
 alias yt-dlp='/usr/local/bin/yt-dlp'
 
+onedrivelink() {
+    if [ $# -eq 0 ]; then
+        echo "Please provide a filename."
+        return 1
+    fi
+
+    filename=$1
+    homedir=$HOME"/OneDrive/"$filename
+
+    if [ -e "$homedir" ]; then
+        sudo ln -s $homedir /usr/local/bin/$filename
+        sudo chmod +x /usr/local/bin/$filename
+        echo "Symlink created and execution permission granted."
+    else
+        echo "The file does not exist in the OneDrive folder."
+    fi
+}
+
 projectdl() {
     # Split repo into user and project
     IFS='/' read -r user project <<< "$1"
