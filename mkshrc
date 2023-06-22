@@ -1,5 +1,18 @@
 # Converted fish config to mkshrc
 
+if [ -n "$ZSH_VERSION" ]; then
+    # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+    # Initialization code that may require console input (password prompts, [y/n]
+    # confirmations, etc.) must go above this block; everything else may go below.
+    if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+        source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+    fi
+fi
+
+if [ -n "$BASH_VERSION" ]; then
+    eval "$(starship init bash)"
+fi
+
 alias open='xdg-open'
 alias Invoke-Item='xdg-open'
 alias Start-Process='xdg-open'
@@ -60,7 +73,7 @@ alias batc='bat --paging=never --style=plain'
 alias lsh='ls -lah -U'
 alias lsf='ls -d "$PWD"/*'
 alias cls='clear'
-alias rc='nano ~/.config/fish/config.fish'
+alias rc='nano ~/.mkshrc'
 alias visudo='sudo nano /etc/sudoers.d/dkendall'
 alias edit-grub='sudo nano /etc/default/grub'
 alias pfetch='bat --paging=never --style=plain ~/.cache/neofetch'
