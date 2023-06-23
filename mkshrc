@@ -392,7 +392,7 @@ pkgsearch() {
 
 disable-all-network-interfaces() {
     if type ip > /dev/null 2>&1; then
-        for iface in $(ip link show | frawk '{split($0,a,": "); if((NR%2)==1) print a[2]}'); do
+        for iface in $(ip link show | rg '^[0-9]+:' | rg -oP '[a-zA-Z0-9@.:]+'); do
             echo "Disabling $iface"
             sudo ip link set $iface down
         done
@@ -406,7 +406,7 @@ disable-all-network-interfaces() {
 
 enable-all-network-interfaces() {
     if type ip > /dev/null 2>&1; then
-        for iface in $(ip link show | frawk '{split($0,a,": "); if((NR%2)==1) print a[2]}'); do
+        for iface in $(ip link show | rg '^[0-9]+:' | rg -oP '[a-zA-Z0-9@.:]+'); do
             echo "Enabling $iface"
             sudo ip link set $iface up
         done
@@ -417,7 +417,6 @@ enable-all-network-interfaces() {
         done
     fi
 }
-
 
 networkcycle() {
     disable-all-network-interfaces
