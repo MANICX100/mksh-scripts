@@ -189,17 +189,22 @@ fp() {
     flatpak run $app_id
 }
 
-function fixwifi {
+fixwifi() {
     while true; do
+        echo "Flushing DNS..."
+        flushdns
+        echo "Disabling all network interfaces..."
         disable-all-network-interfaces
+        echo "Enabling specific network interface..."
         sudo ip link set enp7s0 up
+        echo "Restarting Network Manager..."
         sudo systemctl restart NetworkManager
-        if dig www.google.com > /dev/null 2>&1; then
-            echo "Internet connection is now available."
+        # Check for internet connection
+        if curl --output /dev/null --silent --head --fail http://www.google.com; then
+            echo "Internet connection established!"
             break
         else
-            echo "Retrying..."
-            sleep 5
+            echo "No connection. Retrying..."
         fi
     done
 }
@@ -252,7 +257,7 @@ git config --global --add push.default current
 git config --global --add push.autoSetupRemote true
 }
 
-function instsearch {
+instsearch() {
   if test $# -eq 0; then
     echo "Please provide a package name."
     return 1
@@ -317,7 +322,7 @@ function instsearch {
   fi
 }
 
-function pkgsearch {
+pkgsearch() {
   if test $# -eq 0; then
     echo "Please provide a package name."
     return 1
