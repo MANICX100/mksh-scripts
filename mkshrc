@@ -10,6 +10,9 @@ if [ -n "$ZSH_VERSION" ]; then
         source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
     fi
 
+#make globbing like bash
+setopt nullglob
+
 # Save history to file
 HISTFILE=~/.zsh_history
 
