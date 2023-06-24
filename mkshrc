@@ -562,10 +562,10 @@ speedupvid() {
 burnin_srt_all() {
     for ext in mp4 avi mkv; do
         for file in *.$ext; do
-            if [ -f "$file" ]; then
-                burnin_srt "$file"
-                rm "$file"
-            fi
+            # If the glob didn't match any files, move to next iteration
+            [ -e "$file" ] || continue
+            burnin_srt "$file"
+            rm "$file"
         done
     done
 }
@@ -573,15 +573,14 @@ burnin_srt_all() {
 speedupvid_all() {
     for ext in mp4 avi mkv; do
         for file in *.$ext; do
-            if [ -f "$file" ]; then
-                speedupvid "$file" 1.2
-                rm "$file"
-                rm *.srt
-            fi
+            # If the glob didn't match any files, move to next iteration
+            [ -e "$file" ] || continue
+            speedupvid "$file" 1.2
+            rm "$file"
+            rm *.srt
         done
     done
 }
-
 
 create_empty_srt_files() {
     for f in *.mp4 *.mkv *.avi; do
