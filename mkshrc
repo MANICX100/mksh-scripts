@@ -559,32 +559,29 @@ speedupvid() {
     ffmpeg -i "$1" -filter_complex "[0:v]setpts=1/$2*PTS[v];[0:a]atempo=$2[a]" -map "[v]" -map "[a]" -preset ultrafast -threads 0 "$base-speed.mkv"
 }
 
-convert_videos() {
-    for f in *.mkv *.avi; do
-        if [ -f "$f" ]; then
-            ffmpeg -i "$f" -c:v mpeg4 -c:a aac -b:a 192k "${f%.mkv}.mp4"
-        fi
-    done
-}
-
 burnin_srt_all() {
-    for file in *.mp4 *.avi *.mkv; do
-        if [ -f "$file" ]; then
-            burnin_srt "$file"
-            rm "$file"
-        fi
+    for ext in mp4 avi mkv; do
+        for file in *.$ext; do
+            if [ -f "$file" ]; then
+                burnin_srt "$file"
+                rm "$file"
+            fi
+        done
     done
 }
 
 speedupvid_all() {
-    for file in *.mp4 *.avi *.mkv; do
-        if [ -f "$file" ]; then
-            speedupvid "$file" 1.2
-            rm "$file"
-            rm *.srt
-        fi
+    for ext in mp4 avi mkv; do
+        for file in *.$ext; do
+            if [ -f "$file" ]; then
+                speedupvid "$file" 1.2
+                rm "$file"
+                rm *.srt
+            fi
+        done
     done
 }
+
 
 create_empty_srt_files() {
     for f in *.mp4 *.mkv *.avi; do
@@ -602,14 +599,6 @@ rename_videos() {
     for file in *.mp4 *.avi; do
         if [ -f "$file" ]; then
             mv "$file" "${file%.*}.mkv"
-        fi
-    done
-}
-
-trash_movies() {
-    for file in *.mkv *.avi *.mp4; do
-        if [ -n "$(echo $file | rg -v -- -speed)" ]; then
-            trash $file
         fi
     done
 }
