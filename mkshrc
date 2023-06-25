@@ -598,14 +598,6 @@ create_empty_srt_files() {
     done
 }
 
-rename_videos() {
-    for file in *.mp4 *.avi; do
-        if [ -f "$file" ]; then
-            mv "$file" "${file%.*}.mkv"
-        fi
-    done
-}
-
 unhide_files() {
     for file in .*; do
         mv "$file" "${file#.}"
