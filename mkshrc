@@ -13,7 +13,7 @@ if [ -n "$ZSH_VERSION" ]; then
 #make globbing like bash
 setopt nullglob
 
-source /path-to-antidote/antidote.zsh
+source '/home/dkendall/.antidote/antidote.zsh'
 antidote load ${ZDOTDIR:-$HOME}/.zsh_plugins.txt
 
 fi
