@@ -13,32 +13,8 @@ if [ -n "$ZSH_VERSION" ]; then
 #make globbing like bash
 setopt nullglob
 
-# Save history to file
-HISTFILE=~/.zsh_history
-
-# Set the maximum number of lines of history to save
-HISTSIZE=5000
-
-# Use the history file as a circular buffer, so old entries are removed automatically
-SAVEHIST=5000
-
-# Append to the history file, don't overwrite it
-setopt APPEND_HISTORY
-
-# Share history across all sessions
-setopt SHARE_HISTORY
-
-# Save history after each command finishes
-setopt INC_APPEND_HISTORY
-
-# Allow bang (!) history expansion
-setopt HIST_FIND_NO_DUPS
-
-# Do not record duplicates in history
-setopt HIST_IGNORE_ALL_DUPS
-
-# Record timestamp of command in HISTFILE
-setopt EXTENDED_HISTORY
+source /path-to-antidote/antidote.zsh
+antidote load ${ZDOTDIR:-$HOME}/.zsh_plugins.txt
 
 fi
 
