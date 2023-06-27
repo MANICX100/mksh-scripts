@@ -14,7 +14,8 @@ if [ -n "$ZSH_VERSION" ]; then
 setopt nullglob
 
 #case insensitive
-setopt CASEGLOB
+setopt extendedglob
+unsetopt CASE_GLOB
 
 source '/home/dkendall/.antidote/antidote.zsh'
 antidote load ${ZDOTDIR:-$HOME}/.zsh_plugins.txt
