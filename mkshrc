@@ -35,6 +35,7 @@ alias pbpaste='xclip -selection clipboard -o'
 alias say='espeak'
 alias sips='vipsthumbnail'
 alias networksetup='nmcli'
+alias qlmanage='feh'
 alias brew='~/homebrew/bin/brew'
 
 alias mkfs.ntfs='mkfs.ntfs --fast'
