@@ -24,6 +24,8 @@ fi
 
 TERM=linux
 
+alias loginmgr='bat /etc/X11/default-display-manager'
+
 # macOS
 alias pmset='systemctl'
 alias softwareupdate='up'
