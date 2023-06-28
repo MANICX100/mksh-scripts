@@ -24,7 +24,6 @@ fi
 
 TERM=linux
 
-alias mountalldisks='mount_all_disks'
 alias loginmgr='bat /etc/X11/default-display-manager'
 alias nom='/home/dkendall/go/bin/nom'
 alias kdesudo='lxqt-sudo'
@@ -134,11 +133,15 @@ alias shut='sudo systemctl suspend && i3lock -c 000000 -n'
 alias logoff='sudo service sddm restart'
 alias yt-dlp='/usr/local/bin/yt-dlp'
 
-function please {
-    if alias "$1" &> /dev/null ; then
-        $(alias "$1" | sd "alias $1='" '') "${@:2}"
+function please() {
+    if alias -L | rg -q "^alias $1="; then
+        cmd=$(alias -L | rg "^alias $1=" | sd "^alias $1='(.*)'$" "\$1")
+        /usr/bin/sudo zsh -c "$cmd ${@:2}"
+    elif typeset -f | rg -q "^$1 \(\)"; then
+        cmd=$(typeset -f $1)
+        /usr/bin/sudo zsh -c "$cmd; $1 ${@:2}"
     else
-        command sudo "$@"
+        /usr/bin/sudo "$@"
     fi
 }
 
@@ -313,21 +316,6 @@ fixwifi() {
         sleep 5
     done
 }
-
-mount_all_disks() {
-    for disk in /dev/sd*[a-z]
-    do
-        mount_point="/mnt$(basename "$disk")"
-        echo "Attempting to mount $disk at $mount_point..."
-        if ! grep -q "$disk" /etc/mtab; then
-            mkdir -p "$mount_point"
-            mount "$disk" "$mount_point" && echo "Mounted $disk at $mount_point"
-        else
-            echo "$disk is already mounted."
-        fi
-    done
-}
-
 
 replaceline() {
     lineNumber=$1
