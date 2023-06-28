@@ -24,6 +24,7 @@ fi
 
 TERM=linux
 
+alias please='sudo '
 alias loginmgr='bat /etc/X11/default-display-manager'
 alias nom='/home/dkendall/go/bin/nom'
 alias kdesudo='lxqt-sudo'
@@ -536,20 +537,6 @@ z() {
     target_dir=$(find $PWD -type d -name "*$1*" -print | fzf)
     if [ -n "$target_dir" ]; then
         cd $target_dir
-    fi
-}
-
-please() {
-    if functions -q -- "$1"; then
-        cmdline=""
-        for arg in "$@"; do
-            cmdline+="\"$arg\" "
-        done
-        export function_src=$(functions "$1")
-        argv=$(fish -c "string unescape --style=var (string split \"\n\" $function_src) | source; $cmdline")
-        command sudo -E $argv
-    else
-        command sudo "$@"
     fi
 }
 
