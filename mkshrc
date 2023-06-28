@@ -24,6 +24,7 @@ fi
 
 TERM=linux
 
+alias mountalldisks='mount_all_disks'
 alias loginmgr='bat /etc/X11/default-display-manager'
 alias nom='/home/dkendall/go/bin/nom'
 alias kdesudo='lxqt-sudo'
@@ -313,19 +314,20 @@ fixwifi() {
     done
 }
 
-mountalldisks() {
-    disks=$(lsblk -rno NAME)
-
-    for disk in $disks
+mount_all_disks() {
+    for disk in /dev/sd*[a-z]
     do
-        if [ -b "/dev/$disk" ]
-        then
-            mountpoint="/mnt/$disk"
-            sudo mkdir -p $mountpoint
-            sudo mount "/dev/$disk" $mountpoint
+        mount_point="/mnt$(basename "$disk")"
+        echo "Attempting to mount $disk at $mount_point..."
+        if ! grep -q "$disk" /etc/mtab; then
+            mkdir -p "$mount_point"
+            mount "$disk" "$mount_point" && echo "Mounted $disk at $mount_point"
+        else
+            echo "$disk is already mounted."
         fi
     done
 }
+
 
 replaceline() {
     lineNumber=$1
