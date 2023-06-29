@@ -248,14 +248,18 @@ projectdl() {
         echo $((i+1))": "$(echo ${asset_info[$i]} | cut -d' ' -f1)
     done
 
-    read choice
-    url=$(echo ${asset_info[$((choice-1))]} | awk '{print $NF}')
+   read choice
+if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 )) || (( choice > ${#asset_info[@]} )); then
+    echo "Invalid choice: $choice"
+    return 1
+fi
+url=$(echo ${asset_info[$choice]} | frawk '{print $NF}')
 
     # Download the file with aria2c
     aria2c -s16 -x16 -k1M --auto-file-renaming=false --allow-overwrite=true --dir=/usr/local/bin $url
 
     # Get filename from the URL
-    filename=$(echo $url | awk -F'/' '{print $NF}')
+    filename=$(echo $url | frawk -F'/' '{print $NF}')
 
     # Make the downloaded file executable
     chmod +x /usr/local/bin/$filename
