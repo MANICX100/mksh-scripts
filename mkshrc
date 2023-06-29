@@ -236,7 +236,7 @@ projectdl() {
     project=$(echo $repo | cut -d'/' -f2)
 
     # Fetch the latest release information
-    release_info=$(curl -s https://api.github.com/repos/$user/$project/releases/latest)
+    release_info=$(curl -s https://api.github.com/repos/$user/$project/releases/latest | tr -dc '[:print:]')
 
     # Extract the names and URLs for the assets
     IFS=$'\n'
