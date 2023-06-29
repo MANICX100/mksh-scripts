@@ -231,47 +231,47 @@ onedrivelink() {
 }
 
 projectdl() {
-    # Split repo into user and project
-    IFS='/' read -r user project <<< "$1"
+    repo=$1
+    user=$(echo $repo | cut -d'/' -f1)
+    project=$(echo $repo | cut -d'/' -f2)
 
     # Fetch the latest release information
-    release_info=$(curl -s "https://api.github.com/repos/$user/$project/releases/latest")
+    release_info=$(curl -s https://api.github.com/repos/$user/$project/releases/latest)
 
     # Extract the names and URLs for the assets
     IFS=$'\n'
-    asset_info=($(echo "$release_info" | jq -r '.assets[] | "\(.name) \(.browser_download_url)"'))
+    asset_info=($(echo $release_info | jq -r '.assets[] | "\(.name) \(.browser_download_url)"'))
 
     # Prompt user for which file to download
     echo "Please choose a file to download:"
-    select choice in "${asset_info[@]}"; do
-        [[ -n $choice ]] && break
-        echo "Invalid selection. Please choose a number from the list."
+    for i in "${!asset_info[@]}"; do
+        echo $((i+1))": "$(echo ${asset_info[$i]} | cut -d' ' -f1)
     done
 
-    # Extract the URL from the choice
-    url=$(echo "$choice" | frawk '{print $NF}')
+    read choice
+    url=$(echo ${asset_info[$((choice-1))]} | awk '{print $NF}')
 
     # Download the file with aria2c
-    aria2c -s16 -x16 -k1M --auto-file-renaming=false --allow-overwrite=true --dir=/usr/local/bin "$url" 
+    aria2c -s16 -x16 -k1M --auto-file-renaming=false --allow-overwrite=true --dir=/usr/local/bin $url
 
     # Get filename from the URL
-    filename=$(basename "$url")
+    filename=$(echo $url | awk -F'/' '{print $NF}')
 
     # Make the downloaded file executable
-    chmod +x "/usr/local/bin/$filename"
+    chmod +x /usr/local/bin/$filename
 
-# Ask the user if they want to extract the downloaded file
-echo "Do you want to extract the downloaded file? (yes/no)"
-read extract
+    # Ask the user if they want to extract the downloaded file
+    echo "Do you want to extract the downloaded file? (yes/no)"
+    read extract
 
-if [[ $extract = "yes" ]]; then
-    # Extract the downloaded file
-    echo "Extracting the downloaded file..."
-    extract /usr/local/bin/$filename
-    echo "Extraction completed."
-fi
+    if [[ $extract == "yes" ]]
+    then
+        # Extract the downloaded file
+        echo "Extracting the downloaded file..."
+        extract /usr/local/bin/$filename
+        echo "Extraction completed."
+    fi
 }
-
 
 playtv() {
     for file in /home/dkendall/Videos/Personal/*; do
