@@ -259,6 +259,17 @@ projectdl() {
 
     # Make the downloaded file executable
     chmod +x "/usr/local/bin/$filename"
+
+# Ask the user if they want to extract the downloaded file
+echo "Do you want to extract the downloaded file? (yes/no)"
+read extract
+
+if [[ $extract = "yes" ]]; then
+    # Extract the downloaded file
+    echo "Extracting the downloaded file..."
+    extract /usr/local/bin/$filename
+    echo "Extraction completed."
+fi
 }
 
 
