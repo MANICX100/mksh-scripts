@@ -230,44 +230,19 @@ onedrivelink() {
     fi
 }
 
-projectdl() {
-    if [ $# -ne 2 ]
+function projectdl() {
+  if [ $# -eq 0 ]
     then
-        echo "Usage: projectdl username repo"
-        return 1
-    fi
-
-    username=$1
-    repo=$2
-
-    apiUrl="https://api.github.com/repos/$username/$repo/releases/latest"
-
-    # Use jq to parse JSON (ensure it's installed or replace with your preferred method)
-    response=$(curl -s $apiUrl)
-    downloadUrls=$(echo $response | jq -r '.assets[] | select(.browser_download_url | test("linux|.$")) | .browser_download_url')
-
-    if [ -z "$downloadUrls" ]
-    then
-        echo "No Linux or no extension files found for the specified repository."
-        return 1
-    fi
-
-    for url in $downloadUrls
-    do
-        filename=$(basename $url)
-        curl -L -o ~/apps/$filename $url
-        echo "Downloaded $filename to ~/apps"
-
-        read -p "Would you like to extract downloaded file $filename (yes/no)? " userAnswer
-        if [ "$userAnswer" = "yes" ]
-        then
-            # Use your 'extract' command
-            extract ~/apps/$filename
-            echo "File $filename extracted to ~/apps"
-        fi
-    done
+      echo "No arguments supplied. Please supply a Github username/repo."
+      return 1
+  fi
+  local user_repo=$1
+  curl -s https://api.github.com/repos/$user_repo/releases/latest \
+  | rg 'browser_download_url.*deb' \
+  | jq -r '.browser_download_url' \
+  | rg 'linux|\b' \
+  | xargs -I{} aria2c -x16 -d /usr/local/bin {}
 }
-
 
 playtv() {
     for file in /home/dkendall/Videos/Personal/*; do
