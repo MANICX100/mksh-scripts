@@ -237,12 +237,19 @@ function projectdl() {
       return 1
   fi
   local user_repo=$1
+  local download_dir="/usr/local/bin"
+  
   curl -s https://api.github.com/repos/$user_repo/releases/latest \
-  | jq -r '.assets[].browser_download_url' \
-  | rg 'linux|\b' \
-  | xargs -I{} aria2c -x16 -d /usr/local/bin {}
+  | jq -r '.assets[] | select(.name | test("linux";"i")) | .browser_download_url' \
+  | xargs -I{} aria2c -x16 -d $download_dir {}
+  
+  read -p "Do you want to extract the downloaded files? (yes/no): " extract_choice
+  if [[ $extract_choice == "yes" ]]; then
+    for file in $download_dir/*; do
+      extract "$file"
+    done
+  fi
 }
-
 
 playtv() {
     for file in /home/dkendall/Videos/Personal/*; do
