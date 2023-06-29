@@ -238,7 +238,7 @@ function projectdl() {
   fi
   local user_repo=$1
   curl -s https://api.github.com/repos/$user_repo/releases/latest \
-  | rg 'browser_download_url.*deb' \
+  | rg 'browser_download_url.*' \
   | jq -r '.browser_download_url' \
   | rg 'linux|\b' \
   | xargs -I{} aria2c -x16 -d /usr/local/bin {}
