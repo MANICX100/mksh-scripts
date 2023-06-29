@@ -231,51 +231,43 @@ onedrivelink() {
 }
 
 projectdl() {
-    repo=$1
-    user=$(echo $repo | cut -d'/' -f1)
-    project=$(echo $repo | cut -d'/' -f2)
-
-    # Fetch the latest release information
-    release_info=$(curl -s https://api.github.com/repos/$user/$project/releases/latest | tr -dc '[:print:]')
-
-    # Extract the names and URLs for the assets
-    IFS=$'\n'
-    asset_info=($(echo $release_info | jq -r '.assets[] | "\(.name) \(.browser_download_url)"'))
-
-    # Prompt user for which file to download
-    echo "Please choose a file to download:"
-    for i in "${!asset_info[@]}"; do
-        echo $((i+1))": "$(echo ${asset_info[$i]} | cut -d' ' -f1)
-    done
-
-   read choice
-if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 )) || (( choice > ${#asset_info[@]} )); then
-    echo "Invalid choice: $choice"
-    return 1
-fi
-url=$(echo ${asset_info[$choice]} | frawk '{print $NF}')
-
-    # Download the file with aria2c
-    aria2c -s16 -x16 -k1M --auto-file-renaming=false --allow-overwrite=true --dir=/usr/local/bin $url
-
-    # Get filename from the URL
-    filename=$(echo $url | frawk -F'/' '{print $NF}')
-
-    # Make the downloaded file executable
-    chmod +x /usr/local/bin/$filename
-
-    # Ask the user if they want to extract the downloaded file
-    echo "Do you want to extract the downloaded file? (yes/no)"
-    read extract
-
-    if [[ $extract == "yes" ]]
+    if [ $# -ne 2 ]
     then
-        # Extract the downloaded file
-        echo "Extracting the downloaded file..."
-        extract /usr/local/bin/$filename
-        echo "Extraction completed."
+        echo "Usage: projectdl username repo"
+        return 1
     fi
+
+    username=$1
+    repo=$2
+
+    apiUrl="https://api.github.com/repos/$username/$repo/releases/latest"
+
+    # Use jq to parse JSON (ensure it's installed or replace with your preferred method)
+    response=$(curl -s $apiUrl)
+    downloadUrls=$(echo $response | jq -r '.assets[] | select(.browser_download_url | test("linux|.$")) | .browser_download_url')
+
+    if [ -z "$downloadUrls" ]
+    then
+        echo "No Linux or no extension files found for the specified repository."
+        return 1
+    fi
+
+    for url in $downloadUrls
+    do
+        filename=$(basename $url)
+        curl -L -o ~/apps/$filename $url
+        echo "Downloaded $filename to ~/apps"
+
+        read -p "Would you like to extract downloaded file $filename (yes/no)? " userAnswer
+        if [ "$userAnswer" = "yes" ]
+        then
+            # Use your 'extract' command
+            extract ~/apps/$filename
+            echo "File $filename extracted to ~/apps"
+        fi
+    done
 }
+
 
 playtv() {
     for file in /home/dkendall/Videos/Personal/*; do
