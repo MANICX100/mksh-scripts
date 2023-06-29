@@ -153,7 +153,6 @@ function please() {
 function up {
 topgrade
 git -C ~/powerlevel10k pull
-am -u
 }
 
 function display_path {
