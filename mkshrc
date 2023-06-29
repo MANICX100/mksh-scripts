@@ -231,10 +231,9 @@ onedrivelink() {
 }
 
 function projectdl() {
-  if [ $# -eq 0 ]
-    then
-      echo "No arguments supplied. Please supply a Github username/repo."
-      return 1
+  if [ $# -eq 0 ]; then
+    echo "No arguments supplied. Please supply a Github username/repo."
+    return 1
   fi
   local user_repo=$1
   local download_dir="/usr/local/bin"
@@ -243,13 +242,17 @@ function projectdl() {
   | jq -r '.assets[] | select(.name | test("linux";"i")) | .browser_download_url' \
   | xargs -I{} aria2c -x16 -d $download_dir {}
   
-  read -p "Do you want to extract the downloaded files? (yes/no): " extract_choice
+  printf "Do you want to extract the downloaded files? (yes/no): "
+  read -r extract_choice
+  extract_choice=$(echo "$extract_choice" | tr '[:upper:]' '[:lower:]')
+  
   if [[ $extract_choice == "yes" ]]; then
     for file in $download_dir/*; do
       extract "$file"
     done
   fi
 }
+
 
 playtv() {
     for file in /home/dkendall/Videos/Personal/*; do
