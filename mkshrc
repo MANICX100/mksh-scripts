@@ -332,22 +332,6 @@ replaceline() {
     mv $tempFile $filePath
 }
 
-printline() {
-    file_path=$1
-    start_line=$2
-    end_line=$3
-    if [[ -z $file_path ]]; then
-        echo "File path is required."
-        return 1
-    fi
-    if [[ -z $start_line ]] || [[ -z $end_line ]]; then
-        echo "Start and end lines are required."
-        return 1
-    fi
-    bat --style=plain --pager=never --line-range="$start_line:$end_line" --color=always "$file_path" | rg --color=always .
-    return $?
-}
-
 gitsetup() {
 git config --global user.name "Danny Kendall"
 git config --global user.email "d.manicx100@gmail.com"
