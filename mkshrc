@@ -144,6 +144,13 @@ alias shut='sudo systemctl suspend && i3lock -c 000000 -n'
 alias logoff='sudo service sddm restart'
 alias yt-dlp='/usr/local/bin/yt-dlp'
 
+# zsh function
+all() {
+    for file in ./*; do
+        "$@" "$file"
+    done
+}
+
 reinstall() {
     if [ $# -eq 0 ]; then
         echo "Usage: reinstall <packagename>"
