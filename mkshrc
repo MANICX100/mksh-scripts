@@ -24,8 +24,6 @@ if [ -n "$BASH_VERSION" ]; then
     eval "$(starship init bash)"
 fi
 
-add_to_path "/home/dkendall/.local/bin"
-
 alias tvn='tvnamer --recursive'
 
 alias micandsystem='pactl load-module module-loopback latency_msec=1'
@@ -777,6 +775,8 @@ gitIgnoreRm() {
     git add .
     git commit -m "Update .gitignore"
 }
+
+add_to_path "/home/dkendall/.local/bin"
 
 if [ -n "$ZSH_VERSION" ]; then
 source ~/powerlevel10k/powerlevel10k.zsh-theme
