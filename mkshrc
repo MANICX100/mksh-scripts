@@ -147,7 +147,12 @@ alias shut='sudo systemctl suspend && i3lock -c 000000 -n'
 alias logoff='sudo service sddm restart'
 alias yt-dlp='/usr/local/bin/yt-dlp'
 
-# zsh function
+setresolution() {
+    for output in $(xrandr | rg " connected" | frawk '{ print $1 }'); do
+        xrandr --output $output --mode $1
+    done
+}
+
 all() {
     for file in ./*; do
         "$@" "$file"
