@@ -377,11 +377,12 @@ instsearch() {
 
   echo "Searching for package '$pkg_name'"
 
-  # Search in dpkg
-  if type dpkg >/dev/null 2>&1; then
-    echo "=== DEB ==="
-    dpkg -l | rg -i "$pkg_name"
-  fi
+# Search in dpkg
+if type dpkg >/dev/null 2>&1; then
+  echo "=== DEB ==="
+  dpkg -l | rg -i "$pkg_name" | frawk '{print $2, $3}'
+fi
+
 
   # Search in flatpak
   if type flatpak >/dev/null 2>&1; then
