@@ -1,5 +1,3 @@
-# Converted fish config to mkshrc
-
 export LD_PRELOAD=$(echo $LD_PRELOAD | sd ':*libgtk3-nocsd.so.0' '')
 export EDITOR=nvim
 export TERM=linux
