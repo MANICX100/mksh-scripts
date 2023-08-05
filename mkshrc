@@ -23,7 +23,7 @@ if [ -n "$BASH_VERSION" ]; then
 fi
 
 systemctl() {
-  command systemctl "$@"
+  command sudo systemctl "$@"
   watch -n 1 systemctl status "$@"
 }
 
