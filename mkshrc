@@ -209,7 +209,7 @@ reinstall() {
         echo "Usage: reinstall <packagename>"
         return 1
     fi
-    packagename=$1
+    packagename=$@
     sudo nala remove -y $packagename
     sudo nala install -y $packagename
 }
