@@ -24,6 +24,7 @@ fi
 
 clean() {
 flatpak uninstall --unused
+sudo nala autoremove
 sudo nala clean
 }
 
