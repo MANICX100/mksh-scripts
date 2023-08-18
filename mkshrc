@@ -1,5 +1,5 @@
 export LD_PRELOAD=$(echo $LD_PRELOAD | sd ':*libgtk3-nocsd.so.0' '')
-export EDITOR=nvim
+export EDITOR=micro
 export TERM=linux
 
 if [ -n "$ZSH_VERSION" ]; then
