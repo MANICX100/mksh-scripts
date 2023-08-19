@@ -24,7 +24,7 @@ fi
 
 clean() {
 flatpak uninstall --unused
-sudo nala autoremove
+sudo nala autoremove -y
 sudo nala clean
 }
 
@@ -241,6 +241,7 @@ function please() {
 function up {
 topgrade
 git -C ~/powerlevel10k pull
+clean
 }
 
 function display_path {
