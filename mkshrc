@@ -824,3 +824,10 @@ if [ -n "$ZSH_VERSION" ]; then
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 fi
+
+# bun completions
+[ -s "/home/dkendall/.bun/_bun" ] && source "/home/dkendall/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
