@@ -2,6 +2,9 @@ export LD_PRELOAD=$(echo $LD_PRELOAD | sd ':*libgtk3-nocsd.so.0' '')
 export EDITOR=vim
 export TERM=linux
 
+export JAVA_HOME"=/home/dkendall/.jdks/corretto"
+export PATH=$JAVA_HOME/bin:$PATH
+
 if [ -n "$ZSH_VERSION" ]; then
     # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
     # Initialization code that may require console input (password prompts, [y/n]
