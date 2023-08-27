@@ -2,7 +2,7 @@ export LD_PRELOAD=$(echo $LD_PRELOAD | sd ':*libgtk3-nocsd.so.0' '')
 export EDITOR=vim
 export TERM=linux
 
-export JAVA_HOME"=/home/dkendall/.jdks/corretto"
+export JAVA_HOME"=/corretto"
 export PATH=$JAVA_HOME/bin:$PATH
 
 if [ -n "$ZSH_VERSION" ]; then
