@@ -25,7 +25,7 @@ if [ -n "$BASH_VERSION" ]; then
     eval "$(starship init bash)"
 fi
 
-clean() {
+clean {
 flatpak uninstall --unused
 sudo nala autoremove -y
 sudo nala clean
@@ -33,20 +33,20 @@ appman -c
 rm -rf $HOME/.cache
 }
 
-timeweb(){
+timeweb{
 curl -L -w "time_namelookup: %{time_namelookup}\ntime_connect: %{time_connect}\ntime_appconnect: %{time_appconnect}\ntime_pretransfer: %{time_pretransfer}\ntime_redirect: %{time_redirect}\ntime_starttransfer: %{time_starttransfer}\ntime_total: %{time_total}\n" $@
 }
 
-systemctl() {
+systemctl {
   command sudo systemctl "$@"
   watch -n 1 systemctl status "$@"
 }
 
-essentialpkgs() {
+essentialpkgs {
 dpkg-query -Wf '${Package;-40}${Priority}\n' | rg "required"
 }
 
-displayserv() {
+displayserv {
 printf 'Session is: %s\n' "${DISPLAY:+X11}${WAYLAND_DISPLAY:+WAYLAND}"
 }
 
@@ -198,26 +198,26 @@ alias addapp='xdg-open /usr/local/bin'
 alias logoff='sudo service sddm restart'
 alias yt-dlp='/usr/local/bin/yt-dlp'
 
-icewmup() {
+icewmup {
 cd / 
 aria2c --max-connection-per-server=16 -o /home/dkendall/.icewm/keys -c --allow-overwrite=true "https://raw.githubusercontent.com/MANICX100/setup_scripts/main/icewm-keys"
 icesh restart
 gohome
 }
 
-setresolution() {
+setresolution {
     for output in $(xrandr | rg " connected" | frawk '{ print $1 }'); do
         xrandr --output $output --mode $1
     done
 }
 
-all() {
+all {
     for file in ./*; do
         "$@" "$file"
     done
 }
 
-reinstall() {
+reinstall {
     if [ $# -eq 0 ]; then
         echo "Usage: reinstall <packagename>"
         return 1
@@ -245,7 +245,7 @@ sudo umount /dev/sda1
 sudo umount /dev/nvme1n1p4
 }
 
-function please() {
+function please {
     if alias -L | rg -q "^alias $1="; then
         cmd=$(alias -L | rg "^alias $1=" | sd "^alias $1='(.*)'$" "\$1")
         /usr/bin/sudo zsh -c "$cmd ${@:2}"
@@ -319,7 +319,7 @@ function extract {
     done
 }
 
-onedrivelink() {
+onedrivelink {
     if [ $# -eq 0 ]; then
         echo "Please provide a filename."
         return 1
@@ -337,7 +337,7 @@ onedrivelink() {
     fi
 }
 
-function projectdl() {
+function projectdl {
   if [ $# -eq 0 ]; then
     echo "No arguments supplied. Please supply a Github username/repo."
     return 1
@@ -361,13 +361,13 @@ function projectdl() {
 }
 
 
-playtv() {
+playtv {
     for file in /home/dkendall/Videos/Personal/*; do
         xdg-open "$file"
     done
 }
 
-openall() {
+openall {
     for file in *; do
         if [ -f "$file" ]; then
             xdg-open "$file"
@@ -375,11 +375,11 @@ openall() {
     done
 }
 
-rename-item() {
+rename-item {
     mv "$1" "$2"
 }
 
-fp() {
+fp {
     if [ $# -eq 0 ]; then
         echo "Usage: fp <application-name>"
         return
@@ -398,7 +398,7 @@ fp() {
     flatpak run $app_id
 }
 
-replaceline() {
+replaceline {
     lineNumber=$1
     replacement=$2
     filePath=$3
@@ -407,7 +407,7 @@ replaceline() {
     mv $tempFile $filePath
 }
 
-gitsetup() {
+gitsetup {
 git config --global user.name "Danny Kendall"
 git config --global user.email "d.manicx100@gmail.com"
 git config --global rebase.updateRefs true
@@ -416,7 +416,7 @@ git config --global --add push.default current
 git config --global --add push.autoSetupRemote true
 }
 
-instsearch() {
+instsearch {
   if test $# -eq 0; then
     echo "Please provide a package name."
     return 1
@@ -482,7 +482,7 @@ fi
   fi
 }
 
-pkgsearch() {
+pkgsearch {
   if test $# -eq 0; then
     echo "Please provide a package name."
     return 1
@@ -547,7 +547,7 @@ pkgsearch() {
   fi
 }
 
-disable-all-network-interfaces() {
+disable-all-network-interfaces {
     if type ip > /dev/null 2>&1; then
         for iface in $(ip link show | rg '^[0-9]+:' | rg -oP '[a-zA-Z0-9@.:]+'); do
             echo "Disabling $iface"
@@ -561,7 +561,7 @@ disable-all-network-interfaces() {
     fi
 }
 
-enable-all-network-interfaces() {
+enable-all-network-interfaces {
     if type ip > /dev/null 2>&1; then
         for iface in $(ip link show | rg '^[0-9]+:' | rg -oP '[a-zA-Z0-9@.:]+'); do
             echo "Enabling $iface"
@@ -575,12 +575,12 @@ enable-all-network-interfaces() {
     fi
 }
 
-networkcycle() {
+networkcycle {
     disable-all-network-interfaces
     enable-all-network-interfaces
 }
 
-Resync-Time() {
+Resync-Time {
     if ! command -v ntpdate >/dev/null 2>&1; then
         echo "ntpdate is not installed. Please install it and try again."
         return 1
@@ -589,27 +589,27 @@ Resync-Time() {
     sudo ntpdate pool.ntp.org
 }
 
-download_yt_video() {
+download_yt_video {
     resolution=$1
     video_url=$2
     command="yt-dlp -f \"bestvideo[height<=$resolution]+bestaudio/best[height<=$resolution]\" \"$video_url\""
     eval $command
 }
 
-z() {
+z {
     target_dir=$(find $PWD -type d -name "*$1*" -print | fzf)
     if [ -n "$target_dir" ]; then
         cd $target_dir
     fi
 }
 
-fdo() {
+fdo {
     query=$(printf "%s " "$@")
     selected_file=$(fzf --query "$query")
     xdg-open "$selected_file"
 }
 
-git_unsynced() {
+git_unsynced {
     for dir in $(find . -name .git -type d -prune); do
         if ! git -C "${dir%/*}" diff --quiet; then
             echo "$dir has uncommitted changes"
@@ -618,21 +618,21 @@ git_unsynced() {
     done
 }
 
-burnin_srt() {
+burnin_srt {
     filename=$(basename "$1")  # get the full file name
     base=$(echo $filename | sed 's/\.[^.]*$//')  # get the file name without the extension
     subtitle=$(echo $1 | sed 's/\.[^.]*$/.srt/')
     ffmpeg -i "$1" -vf subtitles="$subtitle" -preset ultrafast -threads 0 "$base-srt.mkv"
 }
 
-speedupvid() {
+speedupvid {
     filename=$(basename "$1")  # get the full file name
     extension=$(echo $filename | sed 's/.*\.//')  # get the extension
     base=$(echo $filename | sed 's/\.[^.]*$//')  # get the file name without the extension
     ffmpeg -i "$1" -filter_complex "[0:v]setpts=1/$2*PTS[v];[0:a]atempo=$2[a]" -map "[v]" -map "[a]" -preset ultrafast -threads 0 "$base-speed.mkv"
 }
 
-burnin_srt_all() {
+burnin_srt_all {
     for ext in mp4 avi mkv; do
         for file in *.$ext; do
             # If the glob didn't match any files, move to next iteration
@@ -643,7 +643,7 @@ burnin_srt_all() {
     done
 }
 
-speedupvid_all() {
+speedupvid_all {
     for ext in mp4 avi mkv; do
         for file in *.$ext; do
             # If the glob didn't match any files, move to next iteration
@@ -655,7 +655,7 @@ speedupvid_all() {
     done
 }
 
-create_empty_srt_files() {
+create_empty_srt_files {
     for f in *.mp4 *.mkv *.avi; do
         if [ -f "$f" ]; then
             base=$(echo "$f" | sed -E 's/\.[^.]+$//')
@@ -667,13 +667,13 @@ create_empty_srt_files() {
     done
 }
 
-unhide_files() {
+unhide_files {
     for file in .*; do
         mv "$file" "${file#.}"
     done
 }
 
-hide_files() {
+hide_files {
     for file in *; do
         if [ -f "$file" ]; then
             mv "$file" ".$file"
@@ -681,80 +681,80 @@ hide_files() {
     done
 }
 
-tgupdate() {
+tgupdate {
     aria2c --max-connection-per-server=16 -d ~/.config/ -o topgrade.toml -c --allow-overwrite=true "https://github.com/MANICX100/setup_scripts/raw/main/topgrade_lin.toml"
     topgrade
 }
 
-serv() {
+serv {
     sudo redbean -C /usr/local/bin/ca.crt -K /usr/local/bin/ca.key -p 80 -p 443 -D $@
 }
 
-rmopt() {
+rmopt {
     rm -rf -v "/opt/$1"
     rm -rf -v "/usr/local/bin/$1"
     rm -rf -v "/usr/local/share/applications/$1.desktop"
 }
 
-openperm() {
+openperm {
     sudo chmod -R a+rwx $@
 }
 
-takeown() {
+takeown {
     sudo chown dkendall $@
 }
 
-rmspecial() {
+rmspecial {
     find . -type f -exec bash -c 'mv "$1" "${1//[^[:alnum:].-]/}"' _ {} \;
     unhide_files
 }
 
-dictate() {
+dictate {
     cd nerd-dictation
     ./nerd-dictation begin --vosk-model-dir=./model &
 }
 
-enddictate() {
+enddictate {
     ./nerd-dictation end
     gohome
 }
 
-yt-dlp-trim() {
+yt-dlp-trim {
     yt-dlp -f "[protocol!*=dash]" --external-downloader ffmpeg --external-downloader-args "ffmpeg_i:-ss $2 -to $3" $1
 }
 
-ffsrtspeed() {
+ffsrtspeed {
     ffmpeg -i $1 -i $3 -filter_complex "[0:v]setpts=1/$2*PTS[v];[0:a]rubberband=tempo=$2[a]" -map "[v]" -map "[a]" -map 1 -preset ultrafast $($now)-output.mkv
 }
 
-image2txt() {
+image2txt {
     read -p 'Please provide the file path for the image: ' confirm
     tesseract -l eng $confirm $($now)-output-from-ocr
     cat $($now)-output-from-ocr.txt|xclip -selection c
 }
 
-yt-dlp-audio() {
+yt-dlp-audio {
     yt-dlp -f 'ba' -x --audio-format mp3 $@
 }
 
-Get-PubIP() {
+Get-PubIP {
     wget --no-cache -q -O - ipinfo.io/ip
 }
 
-bak() {
+bak {
     zip -r ~/$($now)-bak.zip /etc/default/ /etc/profile.d/ /usr/local/bin /opt/
 }
 
-ffup() {
+ffup {
     aria2c -x 16 -d /home/dkendall/.mercury/nvmn7gov.default-default/ -o user-overrides.js --allow-overwrite=true https://github.com/MANICX100/setup_scripts/raw/main/user-overrides.js
     /home/dkendall/.mercury/nvmn7gov.default-default/updater.sh
 }
 
-stripclip() {
+stripclip {
     xclip -selection c -o | xargs | rg -o '.*' | xclip -selection c
 }
 
-rcupdate() {
+rcupdate {
     aria2c -x 16 -d ~/ -o .mkshrc --allow-overwrite=true https://github.com/MANICX100/mksh-scripts/raw/main/mkshrc
     . ~/.mkshrc
 }
@@ -768,12 +768,12 @@ sd 6400 6800  ~/.cache/neofetch
 sd 3.201 6.0 ~/.cache/neofetch
 sd 99D "" ~/.cache/neofetch
 
-flushdns() {
+flushdns {
     sudo resolvectl flush-caches
     echo "Successfully flushed DNS resolver cache"
 }
 
-orderfiles() {
+orderfiles {
     list=(./**.*)
     for val in ${list[@]}; do
         ext=$(path extension -- $val | string replace . "")
@@ -782,51 +782,51 @@ orderfiles() {
     done
 }
 
-subs() {
+subs {
     cd "$(dirname "$1")"
     "$HOME/OneDrive/OpenSubtitlesDownload.py" --cli --auto --username MANICX100 --password 5z6!!Evd "$1"
     cd "$HOME"
 }
 
-yt() {
+yt {
     cd "/home/dkendall/Videos/yt/"
     yt-dlp -f 'bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]' 'https://www.youtube.com/playlist?list=PLJElTFmVZU3vW-BIfsI2AmfVDL9PzqFmg' --external-downloader aria2c --external-downloader-args "-x 16 -k 1M"
     cd "$HOME"
 }
 
-deltv() {
+deltv {
     rm -rf "/home/dkendall/Videos/Personal"
     cd "/home/dkendall/Videos/"
     mkdir Personal
     cd "$HOME"
 }
 
-delyt() {
+delyt {
     rm -rf "/home/dkendall/Videos/yt"
     cd "/home/dkendall/Videos/"
     mkdir yt
     cd "$HOME"
 }
 
-lazyg() {
+lazyg {
     git add .
     git commit -a -m "$1"
     git push
 }
 
-newgit() {
+newgit {
     git add .
     git commit -a --allow-empty-message -m " "
     git push
 }
 
-gitprep() {
+gitprep {
     git stash
     git pull
     git stash pop
 }
 
-gitIgnoreRm() {
+gitIgnoreRm {
     git rm -r --cached .
     git add .
     git commit -m "Update .gitignore"
