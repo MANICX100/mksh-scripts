@@ -256,23 +256,22 @@ function please() {
     fi
 }
 
-function up {
+function up() {
 topgrade
 git -C ~/powerlevel10k pull
-clean
 }
 
-function display_path {
+function display_path() {
     echo $PATH
 }
 
-function add_to_path {
+function add_to_path() {
     if [[ ":$PATH:" != *":$1:"* ]]; then
         PATH="$PATH:$1"
     fi
 }
 
-function remove_from_path {
+function remove_from_path() {
     PATH=$(echo $PATH | sd "(^|:)$1(:|$)" "\1\2" | sd '^:|:$' '' | sd '::' ':')
 }
 
