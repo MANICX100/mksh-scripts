@@ -26,11 +26,11 @@ if [ -n "$BASH_VERSION" ]; then
 fi
 
 clean {
-flatpak uninstall --unused
-sudo nala autoremove -y
-sudo nala clean
-appman -c
-rm -rf $HOME/.cache
+    flatpak uninstall --unused
+    sudo nala autoremove -y
+    sudo nala clean
+    appman -c
+    rm -rf $HOME/.cache
 }
 
 timeweb{
