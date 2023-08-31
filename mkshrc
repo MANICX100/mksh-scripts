@@ -2,15 +2,35 @@ export LD_PRELOAD=$(echo $LD_PRELOAD | sd ':*libgtk3-nocsd.so.0' '')
 export EDITOR=vim
 export TERM=linux
 
-export JAVA_HOME=/corretto
+export JAVA_HOME="/corretto"
 export PATH=$JAVA_HOME/bin:$PATH
 
-clean() {
-    flatpak uninstall --unused
-    sudo nala autoremove -y
-    sudo nala clean
-    appman -c
-    rm -rf $HOME/.cache
+if [ -n "$ZSH_VERSION" ]; then
+    # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+    # Initialization code that may require console input (password prompts, [y/n]
+    # confirmations, etc.) must go above this block; everything else may go below.
+    if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+        source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+    fi
+
+#make globbing like bash
+setopt nullglob
+
+source '/home/dkendall/.antidote/antidote.zsh'
+antidote load ${ZDOTDIR:-$HOME}/.zsh_plugins.txt
+
+fi
+
+if [ -n "$BASH_VERSION" ]; then
+    eval "$(starship init bash)"
+fi
+
+clean {
+flatpak uninstall --unused
+sudo nala autoremove -y
+sudo nala clean
+appman -c
+rm -rf $HOME/.cache
 }
 
 timeweb{
@@ -208,23 +228,21 @@ reinstall {
 }
 
 function revsyncfolders {
-    clean
-    sudo mount -o rw,uid=1000,gid=1000,user,exec,umask=003 /dev/sda1 /media/dkendall/exFAT
-    rsync -avAXESlHh --delete --no-compress --no-whole-file --size-only /media/dkendall/exFAT/Linux /home/dkendall/ 
-    sudo mount -o rw,uid=1000,gid=1000,user,exec,umask=003 /dev/nvme1n1p4 /media/dkendall/windows
-    rsync -avAXESlHh --delete --no-compress --no-whole-file --size-only /media/dkendall/exFAT/Windows /media/dkendall/windows/Users/dkendall/ 
-    sudo umount /dev/sda1
-    sudo umount /dev/nvme1n1p4
+sudo mount -o rw,uid=1000,gid=1000,user,exec,umask=003 /dev/sda1 /media/dkendall/exFAT
+rsync -avAXESlHh --delete --no-compress --no-whole-file --size-only /media/dkendall/exFAT/Linux /home/dkendall/ 
+sudo mount -o rw,uid=1000,gid=1000,user,exec,umask=003 /dev/nvme1n1p4 /media/dkendall/windows
+rsync -avAXESlHh --delete --no-compress --no-whole-file --size-only /media/dkendall/exFAT/Windows /media/dkendall/windows/Users/dkendall/ 
+sudo umount /dev/sda1
+sudo umount /dev/nvme1n1p4
 }
 
 function syncfolders {
-    clean
-    sudo mount -o rw,uid=1000,gid=1000,user,exec,umask=003 /dev/sda1 /media/dkendall/exFAT
-    rsync -avAXESlHh --delete --no-compress --no-whole-file --size-only /home/dkendall/ /media/dkendall/exFAT/Linux
-    sudo mount -o rw,uid=1000,gid=1000,user,exec,umask=003 /dev/nvme1n1p4 /media/dkendall/windows
-    rsync -avAXESlHh --delete --no-compress --no-whole-file --size-only /media/dkendall/windows/Users/dkendall/ /media/dkendall/exFAT/Windows
-    sudo umount /dev/sda1
-    sudo umount /dev/nvme1n1p4
+sudo mount -o rw,uid=1000,gid=1000,user,exec,umask=003 /dev/sda1 /media/dkendall/exFAT
+rsync -avAXESlHh --delete --no-compress --no-whole-file --size-only /home/dkendall/ /media/dkendall/exFAT/Linux
+sudo mount -o rw,uid=1000,gid=1000,user,exec,umask=003 /dev/nvme1n1p4 /media/dkendall/windows
+rsync -avAXESlHh --delete --no-compress --no-whole-file --size-only /media/dkendall/windows/Users/dkendall/ /media/dkendall/exFAT/Windows
+sudo umount /dev/sda1
+sudo umount /dev/nvme1n1p4
 }
 
 function please {
@@ -813,26 +831,6 @@ gitIgnoreRm {
     git add .
     git commit -m "Update .gitignore"
 }
-
-if [ -n "$ZSH_VERSION" ]; then
-    # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-    # Initialization code that may require console input (password prompts, [y/n]
-    # confirmations, etc.) must go above this block; everything else may go below.
-    if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-        source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-    fi
-
-#make globbing like bash
-setopt nullglob
-
-source '/home/dkendall/.antidote/antidote.zsh'
-antidote load ${ZDOTDIR:-$HOME}/.zsh_plugins.txt
-
-fi
-
-if [ -n "$BASH_VERSION" ]; then
-    eval "$(starship init bash)"
-fi
 
 add_to_path "/home/dkendall/.local/bin"
 add_to_path "/home/dkendall/Downloads/flutter/bin"
