@@ -5,7 +5,7 @@ export TERM=linux
 export JAVA_HOME=/corretto
 export PATH=$JAVA_HOME/bin:$PATH
 
-clean {
+clean() {
     flatpak uninstall --unused
     sudo nala autoremove -y
     sudo nala clean
