@@ -30,6 +30,7 @@ sudo nala autoremove -y
 sudo nala clean
 appman -c
 rm -rf -v $HOME/.cache
+sudo rm -rfv /var/tmp/flatpak-cache-*
 }
 
 timeweb(){
