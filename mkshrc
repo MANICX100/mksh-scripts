@@ -19,6 +19,8 @@ source '/home/dkendall/.antidote/antidote.zsh'
 antidote load ${ZDOTDIR:-$HOME}/.zsh_plugins.txt
 
 setopt share_history
+SAVEHIST=1000  # Save most-recent 1000 lines
+HISTFILE=~/.zsh_history
 
 fi
 
