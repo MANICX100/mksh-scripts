@@ -33,6 +33,9 @@ flatpak uninstall --unused
 sudo nala autoremove -y
 sudo nala clean
 appman -c
+}
+
+rmcache(){
 rm -rf -v $HOME/.cache
 sudo rm -rfv /var/tmp/flatpak-cache-*
 }
