@@ -1,4 +1,4 @@
-export EDITOR=vim
+export EDITOR=nvim
 export TERM=linux
 
 export JAVA_HOME=/corretto
