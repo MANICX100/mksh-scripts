@@ -28,6 +28,10 @@ if [ -n "$BASH_VERSION" ]; then
     eval "$(starship init bash)"
 fi
 
+function cmdpath() {
+  ps -p $1 -o cmd= | pbcopy
+}
+
 clean() {
 flatpak uninstall --unused
 sudo nala autoremove -y
