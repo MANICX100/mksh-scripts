@@ -80,6 +80,7 @@ alias bluetooth='bluetoothctl devices'
 alias unmountios='fusermount -u /media/dkendall/iOS'
 alias mountios='ifuse /media/dkendall/iOS'
 alias unmount='sudo umount'
+alias mount='sudo mount -o rw,uid=1000,gid=1000,user,exec,umask=003'
 
 alias fixwifi='sudo dhclient -v enp7s0'
 alias edit-apt='$EDITOR /etc/apt/sources.list'
