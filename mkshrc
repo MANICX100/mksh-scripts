@@ -4,7 +4,6 @@ export TERM=linux
 export JAVA_HOME=/jdk
 export PATH=$JAVA_HOME/bin:$PATH
 
-if [ -n "$ZSH_VERSION" ]; then
     if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
         source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
     fi
