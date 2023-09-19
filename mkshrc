@@ -1,7 +1,7 @@
 export EDITOR=nvem
 export TERM=linux
 
-export JAVA_HOME=/corretto
+export JAVA_HOME=/jdk
 export PATH=$JAVA_HOME/bin:$PATH
 
 if [ -n "$ZSH_VERSION" ]; then
