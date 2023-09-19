@@ -15,7 +15,7 @@ if [ -n "$ZSH_VERSION" ]; then
 #make globbing like bash
 setopt nullglob
 
-source '~/.antidote/antidote.zsh'
+source $HOME/.antidote/antidote.zsh
 antidote load ${ZDOTDIR:-$HOME}/.zsh_plugins.txt
 
 setopt share_history
