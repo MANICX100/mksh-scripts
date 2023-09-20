@@ -1,5 +1,3 @@
-#Danny
-
 printf "\e[?2004l"
 
 export EDITOR=nvem
@@ -20,7 +18,6 @@ antidote load ${ZDOTDIR:-$HOME}/.zsh_plugins.txt
 setopt share_history
 SAVEHIST=1000  # Save most-recent 1000 lines
 HISTFILE=$HOME/.zsh_history
-
 
 alias beeper='$HOME/AppImages/gearlever_beeper_d363dc.appimage'
 alias chiaki='$HOME/AppImages/gearlever_chiaki_d5f7d1.appimage'
