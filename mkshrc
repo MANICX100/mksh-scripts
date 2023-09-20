@@ -19,38 +19,6 @@ setopt share_history
 SAVEHIST=1000  # Save most-recent 1000 lines
 HISTFILE=~/.zsh_history
 
-function cmdpath() {
-  ps -p $1 -o cmd= | pbcopy
-}
-
-clean() {
-flatpak uninstall --unused
-sudo nala autoremove -y
-sudo nala clean
-appman -c
-}
-
-rmcache(){
-rm -rf -v $HOME/.cache
-sudo rm -rfv /var/tmp/flatpak-cache-*
-}
-
-timeweb(){
-curl -L -w "time_namelookup: %{time_namelookup}\ntime_connect: %{time_connect}\ntime_appconnect: %{time_appconnect}\ntime_pretransfer: %{time_pretransfer}\ntime_redirect: %{time_redirect}\ntime_starttransfer: %{time_starttransfer}\ntime_total: %{time_total}\n" $@
-}
-
-systemctl() {
-  command sudo systemctl "$@"
-  watch -n 1 systemctl status "$@"
-}
-
-essentialpkgs() {
-dpkg-query -Wf '${Package;-40}${Priority}\n' | rg "required"
-}
-
-displayserv() {
-printf 'Session is: %s\n' "${DISPLAY:+X11}${WAYLAND_DISPLAY:+WAYLAND}"
-}
 
 alias eza='eza -a'
 alias build='zig build-exe'
@@ -132,7 +100,8 @@ alias open='xdg-open'
 alias Invoke-Item='xdg-open'
 alias Start-Process='xdg-open'
 alias move='mv'
-alias copy='cp'
+alias rename='mv'
+alias copy='cpr'
 alias remove-item='rm'
 alias remove-item-r='rm -r'
 alias get-content='bat'
@@ -154,7 +123,6 @@ alias webcam='sudo modprobe v4l2loopback'
 alias cloudsync='onedrive --synchronize --force'
 
 alias ffmpeg='$HOME/Downloads/ffmpeg/ffmpeg'
-alias ffprobe='$HOME/Downloads/ffmpeg/ffmpeg'
 alias qt-faststart='$HOME/Downloads/ffmpeg/qt-faststart'
 
 alias linuxservices='systemctl list-unit-files --type=service --state=enabled'
@@ -209,6 +177,46 @@ alias changejava='sudo alternatives --config java'
 alias addapp='xdg-open /usr/local/bin'
 alias logoff='sudo service sddm restart'
 alias yt-dlp='/usr/local/bin/yt-dlp'
+
+function cpr() {
+  local source_file=$1
+  local target_dir=$2
+
+  rsync -avAXESlHh --no-whole-file --size-only "${source_file}" "${target_dir}"
+}
+
+function cmdpath() {
+  ps -p $1 -o cmd= | pbcopy
+}
+
+clean() {
+flatpak uninstall --unused
+sudo nala autoremove -y
+sudo nala clean
+appman -c
+}
+
+rmcache(){
+rm -rf -v $HOME/.cache
+sudo rm -rfv /var/tmp/flatpak-cache-*
+}
+
+timeweb(){
+curl -L -w "time_namelookup: %{time_namelookup}\ntime_connect: %{time_connect}\ntime_appconnect: %{time_appconnect}\ntime_pretransfer: %{time_pretransfer}\ntime_redirect: %{time_redirect}\ntime_starttransfer: %{time_starttransfer}\ntime_total: %{time_total}\n" $@
+}
+
+systemctl() {
+  command sudo systemctl "$@"
+  watch -n 1 systemctl status "$@"
+}
+
+essentialpkgs() {
+dpkg-query -Wf '${Package;-40}${Priority}\n' | rg "required"
+}
+
+displayserv() {
+printf 'Session is: %s\n' "${DISPLAY:+X11}${WAYLAND_DISPLAY:+WAYLAND}"
+}
 
 icewmup() {
 cd / 
