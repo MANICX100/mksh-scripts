@@ -226,7 +226,7 @@ printf 'Session is: %s\n' "${DISPLAY:+X11}${WAYLAND_DISPLAY:+WAYLAND}"
 
 icewmup() {
 cd / 
-aria2c --max-connection-per-server=16 -o $HOME/.icewm/keys -c --allow-overwrite=true "https://raw.githubusercontent.com/MANICX100/setup_scripts/main/icewm-keys"
+axel -n 16 -o $HOME/.icewm/keys "https://raw.githubusercontent.com/MANICX100/setup_scripts/main/icewm-keys"
 icesh restart
 gohome
 }
@@ -371,26 +371,29 @@ onedrivelink() {
 }
 
 function projectdl() {
+
   if [ $# -eq 0 ]; then
     echo "No arguments supplied. Please supply a Github username/repo."
     return 1
   fi
+
   local user_repo=$1
   local download_dir="/usr/local/bin"
-  
+
   curl -s https://api.github.com/repos/$user_repo/releases/latest \
-  | jq -r '.assets[] | select(.name | test("linux";"i")) | .browser_download_url' \
-  | xargs -I{} aria2c -x16 -d $download_dir {}
-  
+    | jq -r '.assets[] | select(.name | test("linux";"i")) | .browser_download_url' \
+    | xargs -I{} axel -n 16 -o $download_dir {}
+
   printf "Do you want to extract the downloaded files? (yes/no): "
   read -r extract_choice
   extract_choice=$(echo "$extract_choice" | tr '[:upper:]' '[:lower:]')
-  
+
   if [[ $extract_choice == "yes" ]]; then
     for file in $download_dir/*; do
-      extract "$file"
+      extract "$file" 
     done
   fi
+
 }
 
 
@@ -715,8 +718,8 @@ hide_files() {
 }
 
 tgupdate() {
-    aria2c --max-connection-per-server=16 -d ~/.config/ -o topgrade.toml -c --allow-overwrite=true "https://github.com/MANICX100/setup_scripts/raw/main/topgrade_lin.toml"
-    topgrade
+  axel -n 16 -o ~/.config/topgrade.toml "https://github.com/MANICX100/setup_scripts/raw/main/topgrade_lin.toml"
+  topgrade
 }
 
 serv() {
@@ -778,17 +781,12 @@ bak() {
     zip -r ~/$($now)-bak.zip /etc/default/ /etc/profile.d/ /usr/local/bin /opt/
 }
 
-ffup() {
-    aria2c -x 16 -d $HOME/.mercury/nvmn7gov.default-default/ -o user-overrides.js --allow-overwrite=true https://github.com/MANICX100/setup_scripts/raw/main/user-overrides.js
-    $HOME/.mercury/nvmn7gov.default-default/updater.sh
-}
-
 stripclip() {
     xclip -selection c -o | xargs | rg -o '.*' | xclip -selection c
 }
 
 rcupdate() {
-    aria2c -x 16 -d ~/ -o .mkshrc --allow-overwrite=true https://github.com/MANICX100/mksh-scripts/raw/main/mkshrc
+    axel -n 16 -o ~/.mkshrc https://github.com/MANICX100/mksh-scripts/raw/main/mkshrc
     . ~/.mkshrc
 }
 
@@ -822,10 +820,14 @@ subs() {
 }
 
 yt() {
-    cd "$HOME/Videos/yt/"
-    yt-dlp -f 'bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]' 'https://www.youtube.com/playlist?list=PLJElTFmVZU3vW-BIfsI2AmfVDL9PzqFmg' --external-downloader aria2c --external-downloader-args "-x 16 -k 1M"
-    cd "$HOME"
+  cd "$HOME/Videos/yt/"
+  yt-dlp -f 'bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]' \
+    'https://www.youtube.com/playlist?list=PLJElTFmVZU3vW-BIfsI2AmfVDL9PzqFmg' \
+    --external-downloader axel --external-downloader-args "-n 16"
+
+  cd "$HOME"
 }
+
 
 deltv() {
     rm -rf "$HOME/Videos/Personal"
