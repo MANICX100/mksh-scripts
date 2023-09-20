@@ -19,7 +19,7 @@ antidote load ${ZDOTDIR:-$HOME}/.zsh_plugins.txt
 
 setopt share_history
 SAVEHIST=1000  # Save most-recent 1000 lines
-HISTFILE=~/.zsh_history
+HISTFILE=$HOME/.zsh_history
 
 
 alias beeper='$HOME/AppImages/gearlever_beeper_d363dc.appimage'
@@ -58,7 +58,7 @@ alias edit-apt='$EDITOR /etc/apt/sources.list'
 alias bufferw='sudo sync & watch -n 1 rg -e Dirty: /proc/meminfo'
 alias python='$HOME/pypy3.10-v7.3.12-linux64/bin/pypy'
 alias pip='python -m pip'
-alias icewmkeys='$EDITOR ~/.icewm/keys'
+alias icewmkeys='$EDITOR $HOME/.icewm/keys'
 alias tvn='tvnamer --recursive'
 alias tvrename='tvn $HOME/Videos/TV'
 alias debversion='apt-cache policy'
@@ -100,7 +100,7 @@ alias say='espeak'
 alias sips='vipsthumbnail'
 alias networksetup='nmcli'
 alias qlmanage='feh'
-#alias brew='~/homebrew/bin/brew'
+#alias brew='$HOME/homebrew/bin/brew'
 
 alias mkfs.ntfs='mkfs.ntfs --fast'
 alias mkfs.ext4='mkfs.ext4 -E lazy_itable_init'
@@ -159,19 +159,19 @@ alias ipconfig='ip route'
 alias ifconfig='ip route'
 alias cleanup='clean'
 alias audit='sudo lynis --forensics && pip-audit'
-alias rcview='bat --paging=never --style=plain ~/.config/fish/config.fish'
+alias rcview='bat --paging=never --style=plain $HOME/.config/fish/config.fish'
 alias batc='bat --paging=never --style=plain'
 alias lsh='ls -lah -U'
 alias lsf='ls -d "$PWD"/*'
 alias cls='clear'
-alias rc='$EDITOR ~/.mkshrc'
+alias rc='$EDITOR $HOME/.mkshrc'
 alias visudo='sudo $EDITOR /etc/sudoers.d/dkendall'
 alias edit-grub='sudo $EDITOR /etc/default/grub'
-alias pfetch='bat --paging=never --style=plain ~/.cache/neofetch'
+alias pfetch='bat --paging=never --style=plain $HOME/.cache/neofetch'
 alias instrpm='sudo rpm -ivh --force'
 alias gdebi='sudo gdebi'
 alias instdeb='gdebi'
-alias delrecent='rm ~/.local/share/recently-usd.xbel && sudo touch ~/.local/share/recently-usd.xbel'
+alias delrecent='rm $HOME/.local/share/recently-usd.xbel && sudo touch $HOME/.local/share/recently-usd.xbel'
 alias rm='rm -rf -v'
 alias unshareusb='/bin/eveusbc unshare all'
 alias shareusb='/bin/eveusbc share 12345 1-9.1'
@@ -227,7 +227,7 @@ printf 'Session is: %s\n' "${DISPLAY:+X11}${WAYLAND_DISPLAY:+WAYLAND}"
 }
 
 icewmup() {
-cd / 
+rm $HOME/.icewm/keys
 axel -n 16 -o $HOME/.icewm/keys "https://raw.githubusercontent.com/MANICX100/setup_scripts/main/icewm-keys"
 icesh restart
 gohome
@@ -289,12 +289,12 @@ function please() {
 
 function up() {
   if topgrade; then
-    git -C ~/powerlevel10k pull
+    git -C $HOME/powerlevel10k pull
   else
     echo "topgrade failed, running cup and flutterup"
     cup
     flutterup
-    git -C ~/powerlevel10k pull
+    git -C $HOME/powerlevel10k pull
   fi
 }
 
@@ -720,8 +720,9 @@ hide_files() {
 }
 
 tgupdate() {
-  axel -n 16 -o ~/.config/topgrade.toml "https://github.com/MANICX100/setup_scripts/raw/main/topgrade_lin.toml"
-  topgrade
+rm $HOME/.config/topgrade.toml
+axel -n 16 -o $HOME/.config/topgrade.toml "https://github.com/MANICX100/setup_scripts/raw/main/topgrade_lin.toml"
+topgrade
 }
 
 serv() {
@@ -780,7 +781,7 @@ Get-PubIP() {
 }
 
 bak() {
-    zip -r ~/$($now)-bak.zip /etc/default/ /etc/profile.d/ /usr/local/bin /opt/
+    zip -r $HOME/$($now)-bak.zip /etc/default/ /etc/profile.d/ /usr/local/bin /opt/
 }
 
 stripclip() {
@@ -788,18 +789,19 @@ stripclip() {
 }
 
 rcupdate() {
-    axel -n 16 -o ~/.mkshrc https://github.com/MANICX100/mksh-scripts/raw/main/mkshrc
-    . ~/.mkshrc
+rm $HOME/.mkshrc
+axel -n 16 -o $HOME/.mkshrc https://github.com/MANICX100/mksh-scripts/raw/main/mkshrc
+. $HOME/.mkshrc
 }
 
 osinfo=$(rg -ioP '^ID=\K.+' /etc/os-release)
 
-neofetch > ~/.cache/neofetch
-sd Debian 'Kendall Linux' ~/.cache/neofetch
-sd 6500 6900 ~/.cache/neofetch
-sd 6400 6800  ~/.cache/neofetch
-sd 3.201 6.0 ~/.cache/neofetch
-sd 99D "" ~/.cache/neofetch
+neofetch > $HOME/.cache/neofetch
+sd Debian 'Kendall Linux' $HOME/.cache/neofetch
+sd 6500 6900 $HOME/.cache/neofetch
+sd 6400 6800  $HOME/.cache/neofetch
+sd 3.201 6.0 $HOME/.cache/neofetch
+sd 99D "" $HOME/.cache/neofetch
 
 flushdns() {
     sudo resolvectl flush-caches2>/dev/null
@@ -874,12 +876,12 @@ add_to_path "$HOME/Downloads/flutter/bin"
 add_to_path "$HOME/Downloads/zig/"
 
 if [ -n "$ZSH_VERSION" ]; then
-source ~/powerlevel10k/powerlevel10k.zsh-theme
+source $HOME/powerlevel10k/powerlevel10k.zsh-theme
 fi
 
 if [ -n "$ZSH_VERSION" ]; then
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# To customize prompt, run `p10k configure` or edit $HOME/.p10k.zsh.
+[[ ! -f $HOME/.p10k.zsh ]] || source $HOME/.p10k.zsh
 fi
 
 # bun completions
