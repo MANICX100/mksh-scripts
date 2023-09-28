@@ -184,6 +184,14 @@ alias addapp='xdg-open /usr/local/bin'
 alias logoff='sudo service sddm restart'
 alias yt-dlp='/usr/local/bin/yt-dlp'
 
+boostvolume() {
+pactl list | rg -oP 'Sink #\K([0-9]+)' | while read -r i ; do pactl -- set-sink-volume $i +100% ; done
+}
+
+resetvolume() {
+pactl list | rg -oP 'Sink #\K([0-9]+)' | while read -r i ; do pactl -- set-sink-volume $i 100% ; done
+}
+
 rmr() {
   find . -type f -name "$1" -delete
 }
