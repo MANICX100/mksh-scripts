@@ -26,7 +26,6 @@ alias cursor='$HOME/AppImages/gearlever_cursor_6b938d.appimage'
 alias eza='eza -a'
 alias build='zig build-exe'
 alias cup='cargo install-update -a'
-alias flutterup='flutter upgrade --force'
 
 alias mpv='mpv --hwdec=auto --speed=4'
 alias setresolution='xrandr --output HDMI-A-2 --mode'
@@ -318,9 +317,7 @@ function up() {
   if topgrade; then
     git -C $HOME/powerlevel10k pull
   else
-    echo "topgrade failed, running cup and flutterup"
     cup
-    flutterup
     git -C $HOME/powerlevel10k pull
   fi
 }
@@ -899,7 +896,6 @@ gitIgnoreRm() {
 }
 
 add_to_path "$HOME/.local/bin"
-add_to_path "$HOME/Downloads/flutter/bin"
 add_to_path "$HOME/Downloads/zig/"
 
 if [ -n "$ZSH_VERSION" ]; then
