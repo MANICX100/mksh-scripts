@@ -233,6 +233,7 @@ appman -c
 rmcache(){
 rm -rf -v $HOME/.cache
 sudo rm -rfv /var/tmp/flatpak-cache-*
+echo 3 | sudo tee /proc/sys/vm/drop_caches
 }
 
 timeweb(){
