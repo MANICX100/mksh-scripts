@@ -319,9 +319,6 @@ function please() {
 function up() {
   if topgrade; then
     git -C $HOME/powerlevel10k pull
-  else
-    cup
-    git -C $HOME/powerlevel10k pull
   fi
 }
 
