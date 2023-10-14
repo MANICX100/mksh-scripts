@@ -897,6 +897,7 @@ gitIgnoreRm() {
 
 add_to_path "$HOME/.local/bin"
 add_to_path "$HOME/Downloads/zig/"
+add_to_path "/usr/sbin/"
 
 if [ -n "$ZSH_VERSION" ]; then
 source $HOME/powerlevel10k/powerlevel10k.zsh-theme
