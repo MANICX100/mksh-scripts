@@ -4,7 +4,6 @@ export EDITOR=nvem
 export TERM=linux
 
 export JAVA_HOME=/jdk
-export PATH=$JAVA_HOME/bin:$PATH
 
     if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
         source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -897,6 +896,8 @@ export PATH=$PATH:/usr/sbin/
 export PATH=$PATH:/home/dkendall/pypy/bin
 export PATH=$PATH:/usr/racket/bin
 export PATH=$PATH:/usr/local/go/bin
+export PATH=$PATH:/home/dkendall/go/bin
+export PATH=$JAVA_HOME/bin:$PATH
 
 if [ -n "$ZSH_VERSION" ]; then
 source $HOME/powerlevel10k/powerlevel10k.zsh-theme
