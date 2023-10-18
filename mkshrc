@@ -328,12 +328,6 @@ function display_path() {
     echo $PATH
 }
 
-function add_to_path() {
-    if [[ ":$PATH:" != *":$1:"* ]]; then
-        PATH="$PATH:$1"
-    fi
-}
-
 function remove_from_path() {
     PATH=$(echo $PATH | sd "(^|:)$1(:|$)" "\1\2" | sd '^:|:$' '' | sd '::' ':')
 }
@@ -897,11 +891,12 @@ gitIgnoreRm() {
     git commit -m "Update .gitignore"
 }
 
-add_to_path "$HOME/.local/bin"
-add_to_path "$HOME/Downloads/zig/"
-add_to_path "/usr/sbin/"
-add_to_path "/home/dkendall/pypy/bin"
-add_to_path "/usr/racket/bin"
+export PATH=$PATH:$HOME/.local/bin
+export PATH=$PATH:$HOME/Downloads/zig/
+export PATH=$PATH:/usr/sbin/
+export PATH=$PATH:/home/dkendall/pypy/bin
+export PATH=$PATH:/usr/racket/bin
+export PATH=$PATH:/usr/local/go/bin
 
 if [ -n "$ZSH_VERSION" ]; then
 source $HOME/powerlevel10k/powerlevel10k.zsh-theme
