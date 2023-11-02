@@ -819,8 +819,8 @@ sd 3.201 6.0 $HOME/.cache/neofetch
 sd 99D "" $HOME/.cache/neofetch
 
 flushdns() {
-    sudo resolvectl flush-caches2>/dev/null
-    echo "If existed the DNS resolver cache has been emptied"
+sudo resolvectl flush-caches
+echo "Successfully flushed the DNS Resolver Cache"
 }
 
 orderfiles() {
