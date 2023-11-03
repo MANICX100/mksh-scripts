@@ -887,7 +887,6 @@ gitIgnoreRm() {
 }
 
 export PATH=$PATH:$HOME/.local/bin
-export PATH=$PATH:$HOME/Downloads/zig/
 export PATH=$PATH:/usr/sbin/
 export PATH=$PATH:/home/dkendall/pypy/bin
 export PATH=$PATH:/usr/racket/bin
