@@ -890,8 +890,6 @@ gitIgnoreRm() {
     git commit -m "Update .gitignore"
 }
 
-export PATH=$PATH:/home/dkendall/.local/bin:/usr/sbin/:/home/dkendall/dkendall/pypy/bin:/usr/racket/bin:/usr/local/go/bin:/home/dkendall/go/bin:/var/lib/flatpak/exports/bin
-
 if [ -n "$ZSH_VERSION" ]; then
 source $HOME/powerlevel10k/powerlevel10k.zsh-theme
 fi
