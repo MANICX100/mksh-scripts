@@ -1,3 +1,5 @@
+#cachebuster22065747474
+
 printf "\e[?2004l"
 
 export EDITOR=nvem
