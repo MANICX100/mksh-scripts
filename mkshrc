@@ -893,8 +893,10 @@ export PATH=$PATH:/usr/sbin/
 export PATH=$PATH:/home/dkendall/pypy/bin
 export PATH=$PATH:/usr/racket/bin
 export PATH=$PATH:/usr/local/go/bin
-export PATH=$PATH:/home/dkendall/go/bin
+export PATH=$PATH:$HOME/go/bin
 export PATH=$JAVA_HOME/bin:$PATH
+export PATH=$HOME/.local/share/flatpak/exports/bin 
+export PATH=$HOME/var/lib/flatpak/exports/bin
 
 if [ -n "$ZSH_VERSION" ]; then
 source $HOME/powerlevel10k/powerlevel10k.zsh-theme
