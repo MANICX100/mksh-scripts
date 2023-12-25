@@ -189,6 +189,10 @@ alias logoff='sudo pkill -u dkendall'
 alias logout='logoff'
 alias yt-dlp='/usr/local/bin/yt-dlp'
 
+certinfo() {
+  gnutls-cli --print-cert "$1" < /dev/null | certtool --certificate-info
+}
+
 clearhistory(){
 rm ~/.zsh_history
 history -p
