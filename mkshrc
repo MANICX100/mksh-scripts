@@ -20,6 +20,7 @@ setopt share_history
 SAVEHIST=1000  # Save most-recent 1000 lines
 HISTFILE=$HOME/.zsh_history
 
+alias dy="dig +short @dns.toys"
 alias flatpakdown='flatpak remote-info --log flathub'
 
 alias jellyfin='flatpak run org.jellyfin.JellyfinServer'
